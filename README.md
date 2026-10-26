@@ -1,6 +1,9 @@
 # Gamemikle v12.3
 
-Correção da mochila no menu lateral: ao clicar em **MOCHILA**, o menu da direita não se fecha automaticamente; o inventário abre por cima dele. Ao fechar o inventário, a navegação continua na posição elevada.
+Correção da interação da mochila no menu lateral:
+- Clicar em **MOCHILA** não fecha automaticamente o menu da direita.
+- O inventário abre por cima do menu, mantendo a navegação na posição elevada.
+- Ao fechar o inventário, o menu permanece visualmente estável.
 
 ## Deploy no Netlify
 - Branch de produção: `main`
