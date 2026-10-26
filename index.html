@@ -204,6 +204,10 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
  #rightMenuPanel .actions .miniActionRow button{font-size:8px;padding:6px 2px}
 }
 
+
+#rightMenuPanel #accountBtn{position:relative;top:auto;right:auto;left:auto;z-index:auto;display:block;width:100%;max-width:none;margin:0 0 8px;padding:8px 7px;white-space:normal;font-size:10px;text-align:center;overflow:visible;text-overflow:clip}
+@media(max-width:430px){#rightMenuPanel #accountBtn{font-size:9px;padding:7px 5px}}
+
 </style>
 </head>
 <body>
@@ -219,7 +223,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 <div id="versionLabel" aria-hidden="true">v12.1</div>
 <div id="eventBadge" aria-live="polite">🎉 EVENTO · 2X SORTE</div>
 <div id="activeEffects" aria-live="polite"></div>
-<button id="accountBtn" type="button">☁️ CONTA · ENTRAR</button>
+
 <div id="message">Empurra para cima para avançar · Procura as máquinas luminosas!</div>
 <button class="panel backpackBtn" id="backpackBtn" aria-label="Abrir mochila"><span class="backpackIcon">🎒</span><span>MOCHILA</span></button>
 <div id="toast"></div>
@@ -228,6 +232,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 </div>
 <button id="rightMenuToggle" type="button" aria-expanded="false" aria-controls="rightMenuPanel" title="Abrir menu do jogo">☰ MENU</button>
 <div id="rightMenuPanel" class="panel" role="region" aria-label="Menu do jogo" aria-hidden="true">
+<button id="accountBtn" type="button">☁️ CONTA · ENTRAR</button>
   <div class="actions">
     <div id="hint">Empurra para cima = avançar<br>Arena · Fusão · Cyber · Neve · Vulcão · Evento</div>
     <button class="gold" id="rollBtn">🎲 GIRAR · 10</button>
