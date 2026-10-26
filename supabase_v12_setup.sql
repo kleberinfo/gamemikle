@@ -1,0 +1,2 @@
+-- Gamemikle v12 SQL: use the full supplied file supabase_v12_setup.sql from the download package.
+-- This stub only identifies the expected file; replace with the complete SQL before running.
