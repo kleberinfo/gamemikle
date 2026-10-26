@@ -1,10 +1,10 @@
-# Gamemikle v12.2
+# Gamemikle v12.3
 
-Jogo web estático. A versão 12.2 sobe o botão MENU do lado direito cerca de 1 cm e move o painel junto para manter o espaçamento.
+Correção da mochila no menu lateral: ao clicar em **MOCHILA**, o menu da direita não se fecha automaticamente; o inventário abre por cima dele. Ao fechar o inventário, a navegação continua na posição elevada.
 
 ## Deploy no Netlify
 - Branch de produção: `main`
-- Diretório de publicação: `.` (raiz)
-- Comando de build: vazio
+- Publish directory: `.` (raiz)
+- Build command: vazio
 
-O ficheiro principal é `index.html`. O ficheiro `supabase_v12_setup.sql` contém a configuração adicional do banco. Se já executaste esse SQL com sucesso, não precisas executá-lo novamente. Nunca coloques chaves secretas do Supabase no HTML público.
+O ficheiro principal é `index.html`. O SQL do Supabase é mantido como referência; se já foi aplicado com sucesso na v12, não é necessário executá-lo novamente. Nunca incluir chaves secretas do Supabase no HTML público.
