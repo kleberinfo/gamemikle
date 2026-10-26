@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#10172c">
-<title>Gamemikle v12.2</title>
+<title>Gamemikle v12.3</title>
 <style>
 :root{--glass:rgba(14,22,44,.86);--line:rgba(255,255,255,.16);--gold:#ffd86b;--cyan:#76e8ff}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10172c;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;touch-action:none}
@@ -184,6 +184,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 
 
 /* Gamemikle v12.1: compact right-side collapsible menu */
+#inventory{z-index:40}
 #rightMenuToggle{position:fixed;z-index:28;right:12px;bottom:calc(env(safe-area-inset-bottom,8px) + 50px);width:58px;height:48px;padding:7px 5px;border-radius:14px;font-size:11px;line-height:1.1;background:linear-gradient(145deg,#20a9b5,#2258a8);border:1px solid #b5f4ff75;box-shadow:0 6px 18px #0006;touch-action:manipulation}
 #rightMenuPanel{position:fixed;z-index:27;right:12px;bottom:calc(env(safe-area-inset-bottom,8px) + 108px);width:min(280px,calc(100vw - 24px));max-height:min(72vh,680px);overflow-y:auto;overscroll-behavior:contain;padding:10px;display:none;pointer-events:auto;background:rgba(11,20,43,.96);border-color:#a6ecff54;box-shadow:0 12px 35px #0009}
 #rightMenuPanel.is-open{display:block}
@@ -226,7 +227,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
   <div class="panel stat"><div class="small">Trevos</div><div class="value" id="clovers">0</div></div>
 </div>
 <div id="brand">🎲 GAMEMIKLE</div>
-<div id="versionLabel" aria-hidden="true">v12.2</div>
+<div id="versionLabel" aria-hidden="true">v12.3</div>
 <div id="eventBadge" aria-live="polite">🎉 EVENTO · 2X SORTE</div>
 <div id="activeEffects" aria-live="polite"></div>
 
@@ -1866,7 +1867,7 @@ function setRightMenuOpen(open){
 rightMenuToggle.addEventListener('click', ()=>setRightMenuOpen(!rightMenuPanel.classList.contains('is-open')));
 rightMenuPanel.addEventListener('click', event=>{
   const button = event.target.closest('button');
-  if(button && !button.disabled) setTimeout(()=>setRightMenuOpen(false), 0);
+  if(button && button.id !== 'backpackBtn' && !button.disabled) setTimeout(()=>setRightMenuOpen(false), 0);
 });
 document.addEventListener('pointerdown', event=>{
   if(!rightMenuPanel.classList.contains('is-open')) return;
