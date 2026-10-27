@@ -1,9 +1,11 @@
-# Gamemikle v13.2
+# Gamemikle v13.3
 
-A versão 13.2 mantém as melhorias da v13.1 e ajusta o renascimento:
-- O custo inicial continua em 1 bilião de moedas (1e12).
-- A cada renascimento, o próximo custo aumenta 10 vezes: 1e12, 1e13, 1e14, 1e15…
-- O aumento não para mais no 12.º renascimento.
+A versão 13.3 mantém as melhorias da v13.2 e otimiza o desempenho em catálogos e mochilas grandes:
+- Índices rápidos para procurar pets por ID e agrupá-los por raridade.
+- Pools de pets disponíveis por zona são calculados uma vez e reutilizados nos giros.
+- A equipa automática usa uma seleção eficiente dos melhores pets sem ordenar toda a mochila.
+- Renda passiva e giros duplicados comuns são guardados localmente a cada 5 segundos; novas descobertas, melhorias de mutação, mudanças reais na equipa, compras, fusões e outras ações importantes continuam a guardar imediatamente. A gravação de saída/aba oculta também faz um flush local.
+- O custo de renascimento continua a aumentar 10 vezes por renascimento, sem limite no 12.º renascimento.
 
 Inclui também:
 - Abreviações curtas para moedas e renda, incluindo a escala vigintilhões (`vig`).
