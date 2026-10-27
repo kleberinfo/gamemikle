@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#10172c">
-<title>Gamemikle v13</title>
+<title>Gamemikle v13.1</title>
 <style>
 :root{--glass:rgba(14,22,44,.86);--line:rgba(255,255,255,.16);--gold:#ffd86b;--cyan:#76e8ff}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10172c;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;touch-action:none}
@@ -223,6 +223,25 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 #rightMenuPanel .miniActionRow:has(#sellShopBtn){display:flex}
 #attributeMachineModal .modal{max-width:500px}
 
+
+/* v13.1: compact money suffixes and HUD hierarchy */
+#top .stat:nth-child(1),#top .stat:nth-child(2){flex:1.45 1 0;min-width:0;padding:8px 10px}
+#top .stat:nth-child(1) .value,#top .stat:nth-child(2) .value{font-size:clamp(14px,2.2vw,19px);letter-spacing:-.035em}
+#top .stat:nth-child(4),#top .stat:nth-child(5){flex:.62 1 0;min-width:0;padding:6px 5px}
+#top .stat:nth-child(4) .small,#top .stat:nth-child(5) .small{font-size:8px;letter-spacing:0}
+#top .stat:nth-child(4) .value,#top .stat:nth-child(5) .value{font-size:clamp(10px,1.25vw,13px);letter-spacing:-.04em}
+.upgrade.rareUpgrade{border-color:#e4be4f75;background:linear-gradient(105deg,#d8a72c13,#b861ff12)}
+.upgrade.rareUpgrade button{background:linear-gradient(145deg,#f7d46a,#a66b13);color:#241a02}
+@media(max-width:430px){
+ #top{gap:3px}
+ #top .stat:nth-child(1),#top .stat:nth-child(2){flex:1.45 1 0;padding:6px 5px!important}
+ #top .stat:nth-child(3){flex:.92 1 0;padding:5px 4px!important}
+ #top .stat:nth-child(4),#top .stat:nth-child(5){flex:.58 1 0;padding:5px 3px!important}
+ #top .stat:nth-child(1) .value,#top .stat:nth-child(2) .value{font-size:clamp(12px,3.3vw,15px)}
+ #top .stat:nth-child(4) .small,#top .stat:nth-child(5) .small{font-size:7px}
+ #top .stat:nth-child(4) .value,#top .stat:nth-child(5) .value{font-size:10px}
+}
+
 </style>
 </head>
 <body>
@@ -235,7 +254,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
   <div class="panel stat"><div class="small">Trevos</div><div class="value" id="clovers">0</div></div>
 </div>
 <div id="brand">🎲 GAMEMIKLE</div>
-<div id="versionLabel" aria-hidden="true">v13</div>
+<div id="versionLabel" aria-hidden="true">v13.1</div>
 <div id="eventBadge" aria-live="polite">🎉 EVENTO · 2X SORTE</div>
 <div id="activeEffects" aria-live="polite"></div>
 
@@ -274,6 +293,10 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
     <div class="upgrade"><div class="desc"><strong>💰 Multiplicador de renda</strong><small id="incomeDesc">Aumenta a renda de todas as criaturas.</small></div><button id="buyIncome">Comprar · 1000</button></div>
     <div class="upgrade"><div class="desc"><strong>🪄 Duplicação de pets</strong><small id="doubleDesc">Chance de receber 2 cópias ao girar.</small></div><button id="buyDouble">Comprar</button></div>
     <div class="upgrade"><div class="desc"><strong>✨ Quádruplo de pets</strong><small id="quadDesc">Chance rara de receber 4 cópias ao girar.</small></div><button id="buyQuad">Comprar</button></div>
+    <div class="upgrade"><div class="desc"><strong>🧩 Multiplicador de fragmentos</strong><small id="fragmentUpgradeDesc">Aumenta os fragmentos recebidos nas vitórias da Arena.</small></div><button id="buyFragments">Comprar</button></div>
+    <div class="upgrade rareUpgrade"><div class="desc"><strong>🌌 Sorte Vigintilionária</strong><small>Melhoria final extremamente cara; aumenta muito o peso da sorte na roleta.</small></div><button id="buyVigintillionLuck">COMPRAR</button></div>
+    <div class="upgrade rareUpgrade"><div class="desc"><strong>💰 Renda Vigintilionária</strong><small>Multiplica a renda passiva dos pets por 1.000.</small></div><button id="buyVigintillionIncome">COMPRAR</button></div>
+    <div class="upgrade rareUpgrade"><div class="desc"><strong>💠 Fragmentos do Infinito</strong><small>Multiplica por 100 as recompensas de fragmentos da Arena.</small></div><button id="buyVigintillionFragments">COMPRAR</button></div>
     <p id="shopNote"></p>
   </div>
 </div>
@@ -434,7 +457,7 @@ const GLOBAL_BONUS_RESULTS=[
  {percent:200,weight:250,label:'+200%'},{percent:300,weight:100,label:'+300%'},
  {percent:500,weight:50,label:'+500%'}
 ];
-const defaultState={coins:100,owned:[],equipped:[],discovered:[],autoDeleteRarities:[],luckLevel:0,speedLevel:0,moveSpeedLevel:0,slots:3,incomeLevel:0,totalRolls:0,fragments:0,potions:0,potionInventory:{damage:0,health:0,money:0,luck:0,move:0,roll:0},potionEffects:{},mutations:{},autoRollLevel:0,autoRollEnabled:false,globalBonusPercent:0,globalMutationRolls:0,botLevel:1,autoBattleEnabled:true,halloweenUnlocked:false,cyberUnlocked:false,snowUnlocked:false,volcanoUnlocked:false,clovers:0,cloverBoost:{multiplier:1,expiresAt:0},diceOwned:['classic'],equippedDice:'classic',rebirths:0,upgradeBatch:10,doubleRollLevel:0,quadRollLevel:0,botVictories:0,fusionCount:0,battlePassXp:0,battlePassClaims:[],lastDailyClaim:'',dailyStreak:0,missionDay:'',missionClaims:[],missionProgress:{rolls:0,wins:0,fusions:0},claimedCodes:[],friendUsernames:[],friendCount:0,attributeMultiplier:1,itemInventory:{luck:0,money:0,damage:0,health:0},itemEffects:{}};
+const defaultState={coins:100,owned:[],equipped:[],discovered:[],autoDeleteRarities:[],luckLevel:0,speedLevel:0,moveSpeedLevel:0,slots:3,incomeLevel:0,totalRolls:0,fragments:0,potions:0,potionInventory:{damage:0,health:0,money:0,luck:0,move:0,roll:0},potionEffects:{},mutations:{},autoRollLevel:0,autoRollEnabled:false,globalBonusPercent:0,globalMutationRolls:0,botLevel:1,autoBattleEnabled:true,halloweenUnlocked:false,cyberUnlocked:false,snowUnlocked:false,volcanoUnlocked:false,clovers:0,cloverBoost:{multiplier:1,expiresAt:0},diceOwned:['classic'],equippedDice:'classic',rebirths:0,upgradeBatch:10,doubleRollLevel:0,quadRollLevel:0,botVictories:0,fusionCount:0,battlePassXp:0,battlePassClaims:[],lastDailyClaim:'',dailyStreak:0,missionDay:'',missionClaims:[],missionProgress:{rolls:0,wins:0,fusions:0},claimedCodes:[],friendUsernames:[],friendCount:0,attributeMultiplier:1,fragmentUpgradeLevel:0,vigintillionLuck:false,vigintillionIncome:false,vigintillionFragments:false,itemInventory:{luck:0,money:0,damage:0,health:0},itemEffects:{}};
 let state=loadState(), lastRoll=0, lastTime=performance.now(), toastTimer, rollBusy=false, nextAutoRollAt=performance.now()+1200;
 let autoMutationTarget=null,nextAutoMutationAt=0,autoGlobalEnabled=false,nextAutoGlobalAt=0;
 function clampLevel(value){const n=Number.isFinite(Number(value))?Math.floor(Number(value)):0;return Math.max(0,Math.min(MAX_UPGRADE_LEVEL,n))}
@@ -442,6 +465,7 @@ function normalizeState(raw){
  const source=raw&&typeof raw==='object'?raw:{};
  const s={...defaultState,...source};
  s.attributeMultiplier=[1,2,100,10000,1000000,100000000].includes(Number(s.attributeMultiplier))?Number(s.attributeMultiplier):1;
+ s.fragmentUpgradeLevel=clampLevel(s.fragmentUpgradeLevel);s.vigintillionLuck=Boolean(s.vigintillionLuck);s.vigintillionIncome=Boolean(s.vigintillionIncome);s.vigintillionFragments=Boolean(s.vigintillionFragments);
  s.owned=Array.isArray(s.owned)?s.owned:[];
  s.equipped=Array.isArray(s.equipped)?s.equipped:[];
  s.discovered=[...new Set([...(Array.isArray(s.discovered)?s.discovered:[]),...s.owned].filter(id=>typeof id==='string'))];
@@ -694,6 +718,11 @@ for(let tier=1;tier<=V13_EXTRA_RARITY_COUNT;tier++){
  const base=rarities[V13_BASE_RARITY_COUNT-1];
  rarities.push({name:"Ascensão "+v13Roman(tier),color:v13Color(tier),weight:base.weight*.65*Math.pow(.92,tier),rate:base.rate*2000*Math.pow(1.6,tier),emoji:V13_RARITY_EMOJIS[(tier-1)%V13_RARITY_EMOJIS.length],desc:"Raridade extra da v13 · nível "+tier+" de 200, acima da raridade suprema anterior.",v13:true});
 }
+const V13_1_EXTRA_RARITY_COUNT=50;
+const V13_1_RARITY_BASE=rarities[rarities.length-1];
+for(let tier=1;tier<=V13_1_EXTRA_RARITY_COUNT;tier++){
+ rarities.push({name:"Ascensão Suprema "+v13Roman(tier),color:v13Color(V13_EXTRA_RARITY_COUNT+tier),weight:V13_1_RARITY_BASE.weight*.72*Math.pow(.92,tier),rate:V13_1_RARITY_BASE.rate*Math.pow(1.6,tier),emoji:V13_RARITY_EMOJIS[(V13_EXTRA_RARITY_COUNT+tier-1)%V13_RARITY_EMOJIS.length],desc:"Raridade adicional da v13.1 · nível "+tier+" de 50, acima da raridade máxima anterior.",v13:true,v13_1:true});
+}
 const allPets=[
  {id:'pip',name:'Pip',rarity:0,emoji:'🐣',rate:1},{id:'mush',name:'Cogumelo',rarity:0,emoji:'🍄',rate:2},{id:'rocky',name:'Rochito',rarity:0,emoji:'🪨',rate:3},
  {id:'froggy',name:'Froggy',rarity:1,emoji:'🐸',rate:4},{id:'sprout',name:'Broto',rarity:1,emoji:'🌱',rate:6},{id:'gecko',name:'Gecko',rarity:1,emoji:'🦎',rate:8},
@@ -844,12 +873,19 @@ for(let tier=1;tier<=V13_EXTRA_RARITY_COUNT;tier++){
   allPets.push({id:"v13-asc-"+String(tier).padStart(3,"0")+"-"+(variant+1),name:V13_PET_PREFIXES[variant]+" "+rarity.name,rarity:rarityIndex,emoji:V13_PET_EMOJIS[(tier*5+variant)%V13_PET_EMOJIS.length],rate:rarity.rate*V13_PET_RATE_MULTIPLIERS[variant]});
  }
 }
+const V13_1_PET_PREFIXES=["Supremo","Ancestral","Cósmico","Primordial","Absoluto"];
+for(let tier=1;tier<=V13_1_EXTRA_RARITY_COUNT;tier++){
+ const rarityIndex=V13_BASE_RARITY_COUNT+V13_EXTRA_RARITY_COUNT+tier-1,rarity=rarities[rarityIndex];
+ for(let variant=0;variant<5;variant++){
+  allPets.push({id:"v13-1-asc-"+String(tier).padStart(3,"0")+"-"+(variant+1),name:V13_1_PET_PREFIXES[variant]+" "+rarity.name,rarity:rarityIndex,emoji:V13_PET_EMOJIS[(V13_EXTRA_RARITY_COUNT+tier*5+variant)%V13_PET_EMOJIS.length],rate:rarity.rate*V13_PET_RATE_MULTIPLIERS[variant]});
+ }
+}
 function petData(id){return allPets.find(p=>p.id===id)}
 function mutationMult(id){return state.mutations[id]||1}
 function mutationName(mult){if(mult>=1000)return 'Cataclísmica';if(mult>=500)return 'Magmática';if(mult>=250)return 'Glacial';if(mult>=100)return 'Infernal';if(mult>=50)return 'Celestial';if(mult>=20)return 'Sombria';if(mult>=10)return 'Galáctica';if(mult>=5)return 'Dourada';if(mult>=4)return 'Elétrica';if(mult>=3)return 'Prismática';if(mult>=2)return 'Brilhante';return 'Normal'}
 function incomeMultiplier(){return (1+clampLevel(state.incomeLevel))*(1+Math.max(0,state.rebirths||0)*.25)}
 function globalIncomeMultiplier(){return 1+(Math.max(0,Number(state.globalBonusPercent)||0)/100)}
-function currentIncome(){return state.equipped.reduce((sum,id)=>sum+(petData(id)?.rate||0)*mutationMult(id),0)*incomeMultiplier()*globalIncomeMultiplier()*potionMoneyMultiplier()*itemMoneyMultiplier()*eventMoneyMultiplier()*friendBonusMultiplier()*Math.max(1,Number(state.attributeMultiplier)||1)}
+function currentIncome(){return state.equipped.reduce((sum,id)=>sum+(petData(id)?.rate||0)*mutationMult(id),0)*incomeMultiplier()*globalIncomeMultiplier()*potionMoneyMultiplier()*itemMoneyMultiplier()*eventMoneyMultiplier()*friendBonusMultiplier()*Math.max(1,Number(state.attributeMultiplier)||1)*(state.vigintillionIncome?1000:1)}
 function petPower(p){return (p?.rate||0)*mutationMult(p?.id||'')*(1+(p?.rarity||0)*.65)}
 function teamPower(){return state.equipped.reduce((sum,id)=>sum+petPower(petData(id)),0)*Math.max(1,Number(state.attributeMultiplier)||1)}
 function luckMult(){return 1+clampLevel(state.luckLevel)+(Math.max(0,state.rebirths||0)*5)}
@@ -885,15 +921,22 @@ function petAvailableInZone(p,inHalloween=isInHalloweenZone(),inSnow=isInSnowZon
  return false;
 }
 function rollCost(){return 10}
-function format(n){n=Number(n)||0;if(!Number.isFinite(n))return '∞';if(n<1000)return Math.floor(n).toLocaleString('pt-BR');const scales=[['mil',1e3],['milhões',1e6],['bilhões',1e9],['trilhões',1e12],['quadrilhões',1e15],['quintilhões',1e18],['sextilhões',1e21],['septilhões',1e24],['octilhões',1e27],['nonilhões',1e30],['decilhões',1e33],['undecilhões',1e36],['duodecilhões',1e39],['tredecilhões',1e42],['quattuordecilhões',1e45],['quindecilhões',1e48],['sexdecilhões',1e51],['septendecilhões',1e54],['octodecilhões',1e57],['novemdecilhões',1e60],['vigintilhões',1e63]];let i=scales.length-1;while(i>0&&n<scales[i][1])i--;const value=n/scales[i][1];const str=value.toLocaleString('pt-BR',{maximumFractionDigits:value>=100?0:value>=10?1:2});return `${str} ${scales[i][0]}`}
-function upgradeLevel(kind){if(kind==='luck')return state.luckLevel;if(kind==='speed')return state.speedLevel;if(kind==='move')return state.moveSpeedLevel;if(kind==='income')return state.incomeLevel;if(kind==='auto')return state.autoRollLevel;if(kind==='double')return state.doubleRollLevel;if(kind==='quad')return state.quadRollLevel;if(kind==='slot')return state.slots;return 0}
+function format(n){
+ n=Number(n)||0;if(!Number.isFinite(n))return '∞';if(Math.abs(n)<1000)return Math.floor(n).toLocaleString('pt-BR');
+ const suffixes=['mil','mi','bi','tri','qua','qui','sex','sep','oct','non','dec','und','duo','tre','qtd','qnd','sxd','spd','ocd','nvd','vig','udv','ddv','tdv','qav','qnv','sxv','spv','ocv','nvv','trv'];
+ const order=Math.max(1,Math.floor(Math.log10(Math.abs(n))/3)),index=order-1,divisor=Math.pow(1000,order);
+ const value=n/divisor,suffix=suffixes[index]||('e'+String(order*3).padStart(2,'0')).slice(0,3);
+ const str=value.toLocaleString('pt-BR',{maximumFractionDigits:Math.abs(value)>=100?0:Math.abs(value)>=10?1:2});
+ return `${str} ${suffix}`;
+}
+function upgradeLevel(kind){if(kind==='luck')return state.luckLevel;if(kind==='speed')return state.speedLevel;if(kind==='move')return state.moveSpeedLevel;if(kind==='income')return state.incomeLevel;if(kind==='auto')return state.autoRollLevel;if(kind==='double')return state.doubleRollLevel;if(kind==='quad')return state.quadRollLevel;if(kind==='fragments')return state.fragmentUpgradeLevel;if(kind==='slot')return state.slots;return 0}
 function upgradeLimit(kind){if(kind==='slot')return MAX_SLOTS;if(kind==='auto')return MAX_AUTO_ROLL_LEVEL;return MAX_UPGRADE_LEVEL}
-function upgradeCostAt(kind,level){if(kind==='luck')return Math.round(100*Math.pow(level+1,1.15));if(kind==='speed')return Math.round(150*Math.pow(level+1,1.15));if(kind==='move')return Math.round(250*Math.pow(level+1,1.12));if(kind==='income')return Math.round(1000*Math.pow(level+1,1.15));if(kind==='auto')return Math.round(2500*Math.pow(level+1,1.15));if(kind==='double')return Math.round(100000*Math.pow(level+1,1.16));if(kind==='quad')return Math.round(250000*Math.pow(level+1,1.18));if(kind==='slot')return 500*(level-2);return Infinity}
+function upgradeCostAt(kind,level){if(kind==='luck')return Math.round(100*Math.pow(level+1,1.15));if(kind==='speed')return Math.round(150*Math.pow(level+1,1.15));if(kind==='move')return Math.round(250*Math.pow(level+1,1.12));if(kind==='income')return Math.round(1000*Math.pow(level+1,1.15));if(kind==='auto')return Math.round(2500*Math.pow(level+1,1.15));if(kind==='double')return Math.round(100000*Math.pow(level+1,1.16));if(kind==='quad')return Math.round(250000*Math.pow(level+1,1.18));if(kind==='fragments')return Math.round(250*Math.pow(level+1,7));if(kind==='slot')return 500*(level-2);return Infinity}
 function upgradeCost(kind){return upgradeCostAt(kind,upgradeLevel(kind))}
 function sumUpgradeCost(kind,level,count){
  if(count<=0)return 0;
  if(kind==='slot')return count*(500*(level-2))+500*count*(count-1)/2;
- const rates={luck:[100,1.15],speed:[150,1.15],move:[250,1.12],income:[1000,1.15],auto:[2500,1.15],double:[100000,1.16],quad:[250000,1.18]};
+ const rates={luck:[100,1.15],speed:[150,1.15],move:[250,1.12],income:[1000,1.15],auto:[2500,1.15],double:[100000,1.16],quad:[250000,1.18],fragments:[250,7]};
  const [base,power]=rates[kind]||[1,1];
  if(count<=1200){let total=0;for(let i=0;i<count;i++)total+=Math.round(base*Math.pow(level+i+1,power));return total}
  // Integral approximation keeps large purchase batches responsive; charge and display use the same amount.
@@ -919,6 +962,25 @@ function renderUpgradeButton(id,kind){
  button.disabled=batch.levels===0;
  button.title=batch.levels?`Comprar ${batch.levels} nível(is) neste clique (lote ${state.upgradeBatch.toLocaleString('pt-BR')}).`:`São necessárias ${format(batch.targetCost)} moedas para comprar o próximo lote completo.`;
 }
+const VIGINTILLION_UPGRADE_OFFERS=[
+ {id:"vigintillionLuck",button:"buyVigintillionLuck",label:"Sorte Vigintilionária",cost:1e63,effect:"Sorte dos dados x100.000.000."},
+ {id:"vigintillionIncome",button:"buyVigintillionIncome",label:"Renda Vigintilionária",cost:5e63,effect:"Renda dos pets x1.000."},
+ {id:"vigintillionFragments",button:"buyVigintillionFragments",label:"Fragmentos do Infinito",cost:25e63,effect:"Recompensas de fragmentos da Arena x100."}
+];
+function renderVigintillionUpgrades(){
+ for(const offer of VIGINTILLION_UPGRADE_OFFERS){
+  const button=$(offer.button);if(!button)continue;
+  const owned=Boolean(state[offer.id]);button.disabled=owned||state.coins<offer.cost;
+  button.textContent=owned?"COMPRADA":("COMPRAR · "+format(offer.cost));
+  button.title=offer.effect+" Custo: "+format(offer.cost)+" moedas.";
+ }
+}
+function buyVigintillionUpgrade(id){
+ const offer=VIGINTILLION_UPGRADE_OFFERS.find(item=>item.id===id);if(!offer)return;
+ if(state[offer.id]){showToast("Esta melhoria suprema já foi comprada.");return}
+ if(state.coins<offer.cost){showToast("Precisas de "+format(offer.cost)+" moedas para esta melhoria.");return}
+ state.coins-=offer.cost;state[offer.id]=true;save();renderUI();showToast("🌌 "+offer.label+" desbloqueada! "+offer.effect);
+}
 function renderUI(){
  $('coins').textContent=format(state.coins);$('income').textContent=format(currentIncome());$('luck').textContent='x'+formatLuckMultiplier(luckMult()*Math.max(1,Number(state.attributeMultiplier)||1));$('fragments').textContent=format(state.fragments||0);$('clovers').textContent=format(state.clovers||0);
  $('backpackBtn').setAttribute('aria-label',`Abrir mochila com ${state.owned.length} pets`);
@@ -929,7 +991,8 @@ function renderUI(){
  renderUpgradeButton('buyMoveSpeed','move');
  renderUpgradeButton('buyAutoRoll','auto');
  renderUpgradeButton('buySlot','slot');
- renderUpgradeButton('buyIncome','income');renderUpgradeButton('buyDouble','double');renderUpgradeButton('buyQuad','quad');
+ renderUpgradeButton('buyIncome','income');renderUpgradeButton('buyDouble','double');renderUpgradeButton('buyQuad','quad');renderUpgradeButton('buyFragments','fragments');
+ renderVigintillionUpgrades();$('fragmentUpgradeDesc').textContent=`Nível ${state.fragmentUpgradeLevel.toLocaleString('pt-BR')}/1.000.000.000 · aumenta os fragmentos recebidos nas vitórias da Arena.`;
  $('luckDesc').textContent=luckMax?`Sorte x${luckMult()} · nível máximo 1.000.000.000/1.000.000.000.`:`Sorte x${luckMult()} · nível ${(state.luckLevel+1).toLocaleString('pt-BR')}/1.000.000.000; próximo nível aumenta a sorte.`;
  $('speedDesc').textContent=speedMax?'Velocidade de giro máxima: nível 1.000.000.000/1.000.000.000.':`Giro rápido ${(state.speedLevel+1).toLocaleString('pt-BR')}/1.000.000.000 · reduz o intervalo do dado.`;
  $('moveSpeedDesc').textContent=state.moveSpeedLevel>=MAX_UPGRADE_LEVEL?'Velocidade de movimento máxima: nível 1.000.000.000/1.000.000.000.':`Movimento ${(state.moveSpeedLevel+1).toLocaleString('pt-BR')}/1.000.000.000 · velocidade atual x${(1+state.moveSpeedLevel*.004).toFixed(2)}.`;
@@ -956,7 +1019,7 @@ function renderUI(){
 function showToast(msg){$('toast').textContent=msg;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',2300)}
 function weightedRarity(){
  const inHalloween=isInHalloweenZone(), inSnow=isInSnowZone(), inVolcano=isInVolcanoZone(), inCyber=isInCyberZone(), dieLuck=Math.max(1,diceLuckMultiplier());
- const luckTotal=Math.max(1,Number(state.attributeMultiplier)||1)*cloverLuckMultiplier()*potionLuckMultiplier()*itemLuckMultiplier()*eventLuckMultiplier();
+ const luckTotal=Math.max(1,Number(state.attributeMultiplier)||1)*(state.vigintillionLuck?100000000:1)*cloverLuckMultiplier()*potionLuckMultiplier()*itemLuckMultiplier()*eventLuckMultiplier();
  const logWeights=rarities.map((r,i)=>{
   const available=i>=V13_BASE_RARITY_COUNT||allPets.some(p=>p.rarity===i&&petAvailableInZone(p,inHalloween,inSnow,inVolcano,inCyber));
   if(!available||!(r.weight>0))return -Infinity;
@@ -1033,7 +1096,7 @@ function showResult(p,r,dup,newDiscovery=false){
  $('result').style.display='none';
 }
 function buy(kind){
- const validKinds=['luck','speed','move','income','slot','auto','double','quad'];
+ const validKinds=['luck','speed','move','income','slot','auto','double','quad','fragments'];
  if(!validKinds.includes(kind)){showToast('Melhoria desconhecida.');return}
  const current=upgradeLevel(kind),limit=upgradeLimit(kind);
  if(current>=limit){showToast(kind==='slot'?'Já tens o máximo de 25 espaços.':'Esta melhoria já está no nível máximo!');renderUI();return}
@@ -1048,6 +1111,7 @@ function buy(kind){
  if(kind==='income')state.incomeLevel=Math.min(MAX_UPGRADE_LEVEL,state.incomeLevel+purchased);
  if(kind==='double')state.doubleRollLevel=Math.min(MAX_UPGRADE_LEVEL,state.doubleRollLevel+purchased);
  if(kind==='quad')state.quadRollLevel=Math.min(MAX_UPGRADE_LEVEL,state.quadRollLevel+purchased);
+ if(kind==='fragments')state.fragmentUpgradeLevel=Math.min(MAX_UPGRADE_LEVEL,state.fragmentUpgradeLevel+purchased);
  if(kind==='auto'){
   const wasLocked=state.autoRollLevel===0;
   state.autoRollLevel=Math.min(MAX_AUTO_ROLL_LEVEL,state.autoRollLevel+purchased);
@@ -1060,7 +1124,7 @@ function buy(kind){
 }
 $('rollBtn').addEventListener('click',roll);$('shopBtn').addEventListener('click',()=>$('shop').style.display='flex');
 $('closeShop').addEventListener('click',()=>$('shop').style.display='none');$('closeResult').addEventListener('click',()=>$('result').style.display='none');
-$('buyLuck').addEventListener('click',()=>buy('luck'));$('buySpeed').addEventListener('click',()=>buy('speed'));$('buyMoveSpeed').addEventListener('click',()=>buy('move'));$('buyAutoRoll').addEventListener('click',()=>buy('auto'));$('buySlot').addEventListener('click',()=>buy('slot'));$('buyIncome').addEventListener('click',()=>buy('income'));$('buyDouble').addEventListener('click',()=>buy('double'));$('buyQuad').addEventListener('click',()=>buy('quad'));$('upgradeBatch').addEventListener('change',e=>{state.upgradeBatch=Number(e.target.value)||10;save();renderUI()});
+$('buyLuck').addEventListener('click',()=>buy('luck'));$('buySpeed').addEventListener('click',()=>buy('speed'));$('buyMoveSpeed').addEventListener('click',()=>buy('move'));$('buyAutoRoll').addEventListener('click',()=>buy('auto'));$('buySlot').addEventListener('click',()=>buy('slot'));$('buyIncome').addEventListener('click',()=>buy('income'));$('buyDouble').addEventListener('click',()=>buy('double'));$('buyQuad').addEventListener('click',()=>buy('quad'));$('buyFragments').addEventListener('click',()=>buy('fragments'));$('buyVigintillionLuck').addEventListener('click',()=>buyVigintillionUpgrade('vigintillionLuck'));$('buyVigintillionIncome').addEventListener('click',()=>buyVigintillionUpgrade('vigintillionIncome'));$('buyVigintillionFragments').addEventListener('click',()=>buyVigintillionUpgrade('vigintillionFragments'));$('upgradeBatch').addEventListener('change',e=>{state.upgradeBatch=Number(e.target.value)||10;save();renderUI()});
 $('startGame').addEventListener('click',()=>$('intro').style.display='none');
 $('intro').style.display=localStorage.getItem('rngIntroSeen')?'none':'flex';$('startGame').addEventListener('click',()=>{localStorage.setItem('rngIntroSeen','1')});
 // Arena and mutation-machine UI. Both can only be used when the character is physically nearby.
@@ -1304,16 +1368,16 @@ function usePotion(id){
 }
 
 const ATTRIBUTE_OFFERS=[
- {multiplier:2,cost:1e6,label:"x2"},
- {multiplier:100,cost:1e12,label:"x100"},
- {multiplier:10000,cost:1e18,label:"x10.000"},
- {multiplier:1000000,cost:1e24,label:"x1 milhão"},
- {multiplier:100000000,cost:1e30,label:"x100 milhões"}
+ {multiplier:2,cost:25,label:"x2"},
+ {multiplier:100,cost:100,label:"x100"},
+ {multiplier:10000,cost:500,label:"x10.000"},
+ {multiplier:1000000,cost:2500,label:"x1 milhão"},
+ {multiplier:100000000,cost:10000,label:"x100 milhões"}
 ];
 function renderAttributeMachine(){
  const current=Math.max(1,Number(state.attributeMultiplier)||1);
  $('attributeMultiplierStatus').textContent="Atributo atual: x"+format(current)+" · multiplica sorte, renda e poder de batalha permanentemente.";
- $('attributeMultiplierOptions').innerHTML=ATTRIBUTE_OFFERS.map(o=>'<div class="diceCard"><div class="diceCardIcon">🧬</div><div class="diceCardInfo"><strong>Multiplicador '+o.label+'</strong><small>Custo: '+format(o.cost)+' moedas · efeito permanente</small></div><button data-attribute-multiplier="'+o.multiplier+'" '+(current>=o.multiplier||state.coins<o.cost?'disabled':'')+' class="gold">'+(current>=o.multiplier?'ADQUIRIDO':'COMPRAR · '+format(o.cost))+'</button></div>').join('');
+ $('attributeMultiplierOptions').innerHTML=ATTRIBUTE_OFFERS.map(o=>'<div class="diceCard"><div class="diceCardIcon">🧬</div><div class="diceCardInfo"><strong>Multiplicador '+o.label+'</strong><small>Custo: '+format(o.cost)+' fragmentos · efeito permanente</small></div><button data-attribute-multiplier="'+o.multiplier+'" '+(current>=o.multiplier||state.fragments<o.cost?'disabled':'')+' class="gold">'+(current>=o.multiplier?'ADQUIRIDO':'COMPRAR · '+format(o.cost))+'</button></div>').join('');
  $('attributeMultiplierOptions').querySelectorAll('[data-attribute-multiplier]').forEach(b=>b.addEventListener('click',()=>buyAttributeMultiplier(Number(b.dataset.attributeMultiplier))));
 }
 function openAttributeMachine(){
@@ -1323,8 +1387,8 @@ function openAttributeMachine(){
 function buyAttributeMultiplier(multiplier){
  const offer=ATTRIBUTE_OFFERS.find(o=>o.multiplier===multiplier);if(!offer)return;
  if((Number(state.attributeMultiplier)||1)>=offer.multiplier){showToast('Já tens este multiplicador ou um superior.');return}
- if(state.coins<offer.cost){showToast('Precisas de '+format(offer.cost)+' moedas para comprar '+offer.label+'.');return}
- state.coins-=offer.cost;state.attributeMultiplier=offer.multiplier;save();renderUI();renderAttributeMachine();showToast('🧬 Atributo permanente '+offer.label+' adquirido! Sorte, renda e poder multiplicados.');
+ if(state.fragments<offer.cost){showToast('Precisas de '+format(offer.cost)+' fragmentos para comprar '+offer.label+'.');return}
+ state.fragments-=offer.cost;state.attributeMultiplier=offer.multiplier;save();renderUI();renderAttributeMachine();showToast('🧬 Atributo permanente '+offer.label+' adquirido! Sorte, renda e poder multiplicados.');
 }
 function anyMachineModalOpen(){return ['arena','mutations','globalMachine','cloverMachine','potionModal','sellShop','diceShop','attributeMachineModal'].some(id=>$(id)?.style.display==='flex')}
 function autoOpenNearbyMachine(key){
@@ -1417,7 +1481,7 @@ function finishBattle(won){
   const gotFrag=Math.random()<Math.min(.92,.44+botLevel*.012);
   const gotPotion=Math.random()<Math.min(.65,.2+botLevel*.006);const gotItem=Math.random()<Math.min(.45,.16+botLevel*.004);
   const cloversEarned=1+Math.floor(Math.log2(botLevel+1));
-  if(gotFrag)state.fragments+=1+Math.floor(Math.random()*3);
+  if(gotFrag){const fragmentUpgradeMultiplier=1+Math.min(MAX_UPGRADE_LEVEL,Number(state.fragmentUpgradeLevel)||0)*.01;state.fragments+=Math.max(1,Math.floor((1+Math.floor(Math.random()*3))*fragmentUpgradeMultiplier*(state.vigintillionFragments?100:1)));}
   state.clovers+=cloversEarned;
   let potionName='';if(gotPotion){const drop=POTION_DEFS[Math.floor(Math.random()*POTION_DEFS.length)];state.potionInventory[drop.id]=(state.potionInventory[drop.id]||0)+1;state.potions=potionTotal();potionName=drop.name;}let itemName='';if(gotItem){const drop=ARENA_ITEM_DEFS[Math.floor(Math.random()*ARENA_ITEM_DEFS.length)];state.itemInventory[drop.id]=(state.itemInventory[drop.id]||0)+1;itemName=drop.name;}
   $('battleLog').textContent=`Vitória! O Bot ${b.level} foi derrotado. +${format(reward)} moedas · +${cloversEarned} trevo(s)${gotFrag?' · fragmentos encontrados':''}${gotPotion?' · '+potionName:''}${gotItem?' · '+itemName:''}.`;
