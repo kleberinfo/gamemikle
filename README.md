@@ -1,6 +1,11 @@
-# Gamemikle v13.1
+# Gamemikle v13.2
 
-A versão 13.1 traz:
+A versão 13.2 mantém as melhorias da v13.1 e ajusta o renascimento:
+- O custo inicial continua em 1 bilião de moedas (1e12).
+- A cada renascimento, o próximo custo aumenta 10 vezes: 1e12, 1e13, 1e14, 1e15…
+- O aumento não para mais no 12.º renascimento.
+
+Inclui também:
 - Abreviações curtas para moedas e renda, incluindo a escala vigintilhões (`vig`).
 - Cartões de moedas e renda maiores no HUD; fragmentos e trevos mais compactos.
 - Máquina de Atributos paga com fragmentos obtidos na Arena.
