@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#10172c">
-<title>Gamemikle v12.3</title>
+<title>Gamemikle v13</title>
 <style>
 :root{--glass:rgba(14,22,44,.86);--line:rgba(255,255,255,.16);--gold:#ffd86b;--cyan:#76e8ff}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10172c;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;touch-action:none}
@@ -215,6 +215,14 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 #rightMenuPanel #backpackBtn span:last-child{font-size:10px;letter-spacing:.04em}
 @media(max-width:430px){#rightMenuPanel #backpackBtn{padding:7px 5px}#rightMenuPanel #backpackBtn .backpackIcon{font-size:17px}#rightMenuPanel #backpackBtn span:last-child{font-size:9px}}
 
+/* v13: machine controls open automatically on proximity; hide their old shortcuts */
+#rightMenuPanel #globalMachineBtn,#rightMenuPanel #cloverMachineBtn,#rightMenuPanel #potionBtn,#rightMenuPanel #arenaBtn,#rightMenuPanel #mutationBtn,#rightMenuPanel #sellShopBtn,#rightMenuPanel #diceShopBtn{display:none!important}
+#rightMenuPanel .miniActionRow:has(#globalMachineBtn){display:flex}
+#rightMenuPanel .miniActionRow:has(#diceShopBtn):not(:has(#indexBtn)){margin:0;padding:0;height:0;overflow:hidden}
+#rightMenuPanel .miniActionRow:has(#arenaBtn){margin:0;padding:0;height:0;overflow:hidden}
+#rightMenuPanel .miniActionRow:has(#sellShopBtn){display:flex}
+#attributeMachineModal .modal{max-width:500px}
+
 </style>
 </head>
 <body>
@@ -227,7 +235,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
   <div class="panel stat"><div class="small">Trevos</div><div class="value" id="clovers">0</div></div>
 </div>
 <div id="brand">🎲 GAMEMIKLE</div>
-<div id="versionLabel" aria-hidden="true">v12.3</div>
+<div id="versionLabel" aria-hidden="true">v13</div>
 <div id="eventBadge" aria-live="polite">🎉 EVENTO · 2X SORTE</div>
 <div id="activeEffects" aria-live="polite"></div>
 
@@ -256,12 +264,12 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 <div id="shop">
   <div class="panel modal">
     <div class="modalHead"><h2>✨ Loja de melhorias</h2><button id="closeShop" aria-label="Fechar">✕</button></div>
-    <p>Escolhe o tamanho do lote antes de comprar. As melhorias normais podem chegar a 1.000.000 de níveis.</p>
-    <div class="batchControl"><label for="upgradeBatch">Comprar por lote</label><select id="upgradeBatch"><option value="1">+1</option><option value="10" selected>+10</option><option value="100">+100</option><option value="1000">+1.000</option><option value="10000">+10.000</option><option value="100000">+100.000</option><option value="1000000">+1.000.000</option></select></div>
+    <p>Escolhe o tamanho do lote antes de comprar. As melhorias normais podem chegar a 1.000.000.000 de níveis.</p>
+    <div class="batchControl"><label for="upgradeBatch">Comprar por lote</label><select id="upgradeBatch"><option value="1">+1</option><option value="10" selected>+10</option><option value="100">+100</option><option value="1000">+1.000</option><option value="10000">+10.000</option><option value="100000">+100.000</option><option value="1000000">+1.000.000</option><option value="10000000">+10.000.000</option><option value="100000000">+100.000.000</option><option value="1000000000">+1.000.000.000</option></select></div>
     <div class="upgrade"><div class="desc"><strong>🍀 Sorte</strong><small id="luckDesc">Aumenta a chance de mutação; a raridade depende do dado equipado.</small></div><button id="buyLuck">Comprar · 100</button></div>
-    <div class="upgrade"><div class="desc"><strong>⚡ Giro rápido</strong><small id="speedDesc">Reduz o intervalo dos giros até o nível 1.000.000.</small></div><button id="buySpeed">Comprar · 150</button></div>
+    <div class="upgrade"><div class="desc"><strong>⚡ Giro rápido</strong><small id="speedDesc">Reduz o intervalo dos giros até o nível 1.000.000.000.</small></div><button id="buySpeed">Comprar · 150</button></div>
     <div class="upgrade"><div class="desc"><strong>🏃 Velocidade de movimento</strong><small id="moveSpeedDesc">Aumenta a velocidade ao andar pelo mapa.</small></div><button id="buyMoveSpeed">Comprar · 250</button></div>
-    <div class="upgrade"><div class="desc"><strong>🤖 Giro automático</strong><small id="autoRollDesc">Desbloqueia giros automáticos e melhora a velocidade até o nível 1.000.000.</small></div><button id="buyAutoRoll">Comprar · 2.500</button></div>
+    <div class="upgrade"><div class="desc"><strong>🤖 Giro automático</strong><small id="autoRollDesc">Desbloqueia giros automáticos e melhora a velocidade até o nível 1.000.000.000.</small></div><button id="buyAutoRoll">Comprar · 2.500</button></div>
     <div class="upgrade"><div class="desc"><strong>🐾 Espaço de equipe</strong><small id="slotsDesc">Permite equipar mais criaturas.</small></div><button id="buySlot">Comprar · 500</button></div>
     <div class="upgrade"><div class="desc"><strong>💰 Multiplicador de renda</strong><small id="incomeDesc">Aumenta a renda de todas as criaturas.</small></div><button id="buyIncome">Comprar · 1000</button></div>
     <div class="upgrade"><div class="desc"><strong>🪄 Duplicação de pets</strong><small id="doubleDesc">Chance de receber 2 cópias ao girar.</small></div><button id="buyDouble">Comprar</button></div>
@@ -376,11 +384,12 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 <div id="intro">
   <div class="panel modal">
     <div class="modalHead"><h2>Bem-vindo à ilha!</h2></div>
-    <p>Empurra o joystick para cima para avançar na direção em que a câmera olha. Luta na Arena com cartas visíveis e autobatalha. Com 10B desbloqueias Halloween, com 10T a Neve e com 1000T o Vulcão. Derrota bots para ganhar trevos e poções. Visita a Máquina de Trevos para ativar sorte até x1.000.000; usa poções de dano, vida, dinheiro, sorte, movimento e giros. O Índice regista os pets que já descobriste. Arrasta o lado direito do ecrã para rodar a câmera.</p>
+    <p>Move o joystick para explorar o mapa. As máquinas abrem automaticamente quando te aproximas: Arena, Fusão, Trevos, Poções, Loja de Pets, dados e a nova Máquina de Atributos. Desbloqueia multiplicadores permanentes e descobre 200 raridades novas com cinco pets em cada uma. Os botões rápidos das máquinas foram removidos do menu para libertar espaço.</p>
     <button id="startGame" class="gold" style="width:100%">Começar aventura</button>
   </div>
 </div>
 
+<div id="attributeMachineModal" class="v12Overlay"><div class="panel modal"><div class="modalHead"><h2>🧬 Máquina de Atributos</h2><button id="closeAttributeMachine" type="button" aria-label="Fechar">✕</button></div><p>Desbloqueia multiplicadores permanentes para a sorte dos dados, a renda dos pets e o poder de batalha. Cada nível substitui o multiplicador anterior.</p><div id="attributeMultiplierStatus" class="inventorySummary"></div><div id="attributeMultiplierOptions"></div><p id="attributeMachineNote" class="v12Note">Aproxima-te desta máquina para abrir automaticamente. Os efeitos são guardados no teu save.</p></div></div>
 <div id="hubModal" class="v12Overlay"><div class="panel modal v12Wide"><div class="modalHead"><h2>🌟 Central Gamemikle</h2><button data-close="hubModal">✕</button></div><p>Progressão, eventos, coleção e funcionalidades sociais. Os recursos online usam o teu Supabase.</p><div class="hubGrid">
 <button data-open="rebirthModal">♻️ Renascimento</button><button data-open="dailyModal">🎁 Prémio diário</button><button data-open="missionModal">📜 Missões</button><button data-open="passModal">🎃 Passe Halloween</button><button data-open="codesModal">🎟️ Códigos</button><button data-open="socialModal">🤝 Amigos / Trocas</button><button data-open="leaderboardModal">🏆 Top global</button><button data-open="paidShopModal">💎 Loja premium</button><button id="halloweenEventBtn" class="halloweenBtn">🎃 Evento Halloween</button>
 </div><p id="onlineFeatureStatus" class="v12Note">O mundo partilhado e os recursos entre contas dependem da configuração de Realtime e do SQL v12 incluído.</p></div></div>
@@ -415,9 +424,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const $=id=>document.getElementById(id);
 const saveKey='rngDiceLegends3d_v1';
-const MAX_UPGRADE_LEVEL=1000000; // limite v12: um milhão de níveis por melhoria
-const MAX_DISPLAY_LEVEL=1000000;
-const MAX_AUTO_ROLL_LEVEL=1000000;
+const MAX_UPGRADE_LEVEL=1000000000; // v13: até mil milhões de níveis por melhoria
+const MAX_DISPLAY_LEVEL=1000000000;
+const MAX_AUTO_ROLL_LEVEL=1000000000;
 const MAX_SLOTS=25;
 const GLOBAL_BONUS_RESULTS=[
  {percent:25,weight:4500,label:'+25%'},{percent:50,weight:3000,label:'+50%'},
@@ -425,17 +434,18 @@ const GLOBAL_BONUS_RESULTS=[
  {percent:200,weight:250,label:'+200%'},{percent:300,weight:100,label:'+300%'},
  {percent:500,weight:50,label:'+500%'}
 ];
-const defaultState={coins:100,owned:[],equipped:[],discovered:[],autoDeleteRarities:[],luckLevel:0,speedLevel:0,moveSpeedLevel:0,slots:3,incomeLevel:0,totalRolls:0,fragments:0,potions:0,potionInventory:{damage:0,health:0,money:0,luck:0,move:0,roll:0},potionEffects:{},mutations:{},autoRollLevel:0,autoRollEnabled:false,globalBonusPercent:0,globalMutationRolls:0,botLevel:1,autoBattleEnabled:true,halloweenUnlocked:false,cyberUnlocked:false,snowUnlocked:false,volcanoUnlocked:false,clovers:0,cloverBoost:{multiplier:1,expiresAt:0},diceOwned:['classic'],equippedDice:'classic',rebirths:0,upgradeBatch:10,doubleRollLevel:0,quadRollLevel:0,botVictories:0,fusionCount:0,battlePassXp:0,battlePassClaims:[],lastDailyClaim:'',dailyStreak:0,missionDay:'',missionClaims:[],missionProgress:{rolls:0,wins:0,fusions:0},claimedCodes:[],friendUsernames:[],friendCount:0,itemInventory:{luck:0,money:0,damage:0,health:0},itemEffects:{}};
+const defaultState={coins:100,owned:[],equipped:[],discovered:[],autoDeleteRarities:[],luckLevel:0,speedLevel:0,moveSpeedLevel:0,slots:3,incomeLevel:0,totalRolls:0,fragments:0,potions:0,potionInventory:{damage:0,health:0,money:0,luck:0,move:0,roll:0},potionEffects:{},mutations:{},autoRollLevel:0,autoRollEnabled:false,globalBonusPercent:0,globalMutationRolls:0,botLevel:1,autoBattleEnabled:true,halloweenUnlocked:false,cyberUnlocked:false,snowUnlocked:false,volcanoUnlocked:false,clovers:0,cloverBoost:{multiplier:1,expiresAt:0},diceOwned:['classic'],equippedDice:'classic',rebirths:0,upgradeBatch:10,doubleRollLevel:0,quadRollLevel:0,botVictories:0,fusionCount:0,battlePassXp:0,battlePassClaims:[],lastDailyClaim:'',dailyStreak:0,missionDay:'',missionClaims:[],missionProgress:{rolls:0,wins:0,fusions:0},claimedCodes:[],friendUsernames:[],friendCount:0,attributeMultiplier:1,itemInventory:{luck:0,money:0,damage:0,health:0},itemEffects:{}};
 let state=loadState(), lastRoll=0, lastTime=performance.now(), toastTimer, rollBusy=false, nextAutoRollAt=performance.now()+1200;
 let autoMutationTarget=null,nextAutoMutationAt=0,autoGlobalEnabled=false,nextAutoGlobalAt=0;
 function clampLevel(value){const n=Number.isFinite(Number(value))?Math.floor(Number(value)):0;return Math.max(0,Math.min(MAX_UPGRADE_LEVEL,n))}
 function normalizeState(raw){
  const source=raw&&typeof raw==='object'?raw:{};
  const s={...defaultState,...source};
+ s.attributeMultiplier=[1,2,100,10000,1000000,100000000].includes(Number(s.attributeMultiplier))?Number(s.attributeMultiplier):1;
  s.owned=Array.isArray(s.owned)?s.owned:[];
  s.equipped=Array.isArray(s.equipped)?s.equipped:[];
  s.discovered=[...new Set([...(Array.isArray(s.discovered)?s.discovered:[]),...s.owned].filter(id=>typeof id==='string'))];
- s.autoDeleteRarities=Array.isArray(s.autoDeleteRarities)?[...new Set(s.autoDeleteRarities.map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<=100))]:[];
+ s.autoDeleteRarities=Array.isArray(s.autoDeleteRarities)?[...new Set(s.autoDeleteRarities.map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<=300))]:[];
  s.mutations=s.mutations&&typeof s.mutations==='object'?s.mutations:{};
  s.fragments=Math.max(0,Number(s.fragments)||0);
  s.potions=Math.max(0,Math.floor(Number(s.potions)||0));
@@ -449,7 +459,7 @@ function normalizeState(raw){
  for(const key of ['damageUntil','healthUntil','moneyUntil','luckUntil','moveUntil','rollUntil'])s.potionEffects[key]=Math.max(0,Number(s.potionEffects[key])||0);
  s.cyberUnlocked=Boolean(source.cyberUnlocked===undefined?source.halloweenUnlocked:source.cyberUnlocked);
  s.rebirths=Math.max(0,Math.floor(Number(s.rebirths)||0));
- const validBatches=[1,10,100,1000,10000,100000,1000000];s.upgradeBatch=validBatches.includes(Number(s.upgradeBatch))?Number(s.upgradeBatch):10;
+ const validBatches=[1,10,100,1000,10000,100000,1000000,10000000,100000000,1000000000];s.upgradeBatch=validBatches.includes(Number(s.upgradeBatch))?Number(s.upgradeBatch):10;
  s.doubleRollLevel=clampLevel(s.doubleRollLevel);s.quadRollLevel=clampLevel(s.quadRollLevel);
  s.botVictories=Math.max(0,Math.floor(Number(s.botVictories)||0));s.fusionCount=Math.max(0,Math.floor(Number(s.fusionCount)||0));
  s.battlePassXp=Math.max(0,Math.floor(Number(s.battlePassXp)||0));s.battlePassClaims=Array.isArray(s.battlePassClaims)?[...new Set(s.battlePassClaims.map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=10))]:[];
@@ -670,6 +680,20 @@ const rarities=[
  {name:"Abóbora Apocalíptica",color:0xff743f,weight:4e-11,rate:1e+18,emoji:["🎃", "☄️", "🔥"],desc:"O terror que devora as dimensões.",halloween:true},
  {name:"Halloween Supremo",color:0xffd8ff,weight:2e-11,rate:3e+18,emoji:["👑", "🦇", "💀"],desc:"A raridade suprema do evento Halloween.",halloween:true}
 ];
+
+const V13_BASE_RARITY_COUNT=rarities.length;
+const V13_EXTRA_RARITY_COUNT=200;
+function v13Roman(n){const table=[[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let out="";for(const [v,symbol] of table){while(n>=v){out+=symbol;n-=v}}return out}
+function v13Color(index){
+ const h=((index*137.508)%360)/60,sat=.82,l=.62,c=(1-Math.abs(2*l-1))*sat,x=c*(1-Math.abs(h%2-1)),m=l-c/2;let r=0,g=0,b=0;
+ if(h<1)[r,g,b]=[c,x,0];else if(h<2)[r,g,b]=[x,c,0];else if(h<3)[r,g,b]=[0,c,x];else if(h<4)[r,g,b]=[0,x,c];else if(h<5)[r,g,b]=[x,0,c];else [r,g,b]=[c,0,x];
+ return (Math.round((r+m)*255)<<16)|(Math.round((g+m)*255)<<8)|Math.round((b+m)*255);
+}
+const V13_RARITY_EMOJIS=[["🌌","🐉","💎"],["♾️","🪽","⚡"],["🪐","👁️","🔥"],["🧬","🐲","🔮"],["🌠","🦖","💠"],["🛸","🦁","✨"],["🌑","🐙","🌀"],["💫","🦅","👑"],["🪬","🐺","🌟"],["☄️","🤖","💥"]];
+for(let tier=1;tier<=V13_EXTRA_RARITY_COUNT;tier++){
+ const base=rarities[V13_BASE_RARITY_COUNT-1];
+ rarities.push({name:"Ascensão "+v13Roman(tier),color:v13Color(tier),weight:base.weight*.65*Math.pow(.92,tier),rate:base.rate*Math.pow(1.6,tier),emoji:V13_RARITY_EMOJIS[(tier-1)%V13_RARITY_EMOJIS.length],desc:"Raridade extra da v13 · nível "+tier+" de 200, acima da raridade suprema anterior.",v13:true});
+}
 const allPets=[
  {id:'pip',name:'Pip',rarity:0,emoji:'🐣',rate:1},{id:'mush',name:'Cogumelo',rarity:0,emoji:'🍄',rate:2},{id:'rocky',name:'Rochito',rarity:0,emoji:'🪨',rate:3},
  {id:'froggy',name:'Froggy',rarity:1,emoji:'🐸',rate:4},{id:'sprout',name:'Broto',rarity:1,emoji:'🌱',rate:6},{id:'gecko',name:'Gecko',rarity:1,emoji:'🦎',rate:8},
@@ -810,14 +834,24 @@ const allPets=[
  {id:"v12-polar-aurora-fox",name:"Raposa Aurora Polar",rarity:18,emoji:"🦊",rate:95000000,zone:"snow"},
  {id:"v12-zero-absolute-phoenix",name:"Fénix do Zero Absoluto",rarity:19,emoji:"🪽",rate:350000000,zone:"snow"}
 ];
+
+const V13_PET_PREFIXES=["Guardião","Fénix","Dragão","Leviatã","Titã"];
+const V13_PET_EMOJIS=["🐉","🦄","🦊","🐺","🐲","🦖","🦅","🦂","🐍","🦁","🐙","🦈","🛸","👁️","🤖","🌌","💎","⚡","🔥","🪽"];
+const V13_PET_RATE_MULTIPLIERS=[.64,.82,1,1.22,1.48];
+for(let tier=1;tier<=V13_EXTRA_RARITY_COUNT;tier++){
+ const rarityIndex=V13_BASE_RARITY_COUNT+tier-1,rarity=rarities[rarityIndex];
+ for(let variant=0;variant<5;variant++){
+  allPets.push({id:"v13-asc-"+String(tier).padStart(3,"0")+"-"+(variant+1),name:V13_PET_PREFIXES[variant]+" "+rarity.name,rarity:rarityIndex,emoji:V13_PET_EMOJIS[(tier*5+variant)%V13_PET_EMOJIS.length],rate:rarity.rate*V13_PET_RATE_MULTIPLIERS[variant]});
+ }
+}
 function petData(id){return allPets.find(p=>p.id===id)}
 function mutationMult(id){return state.mutations[id]||1}
 function mutationName(mult){if(mult>=1000)return 'Cataclísmica';if(mult>=500)return 'Magmática';if(mult>=250)return 'Glacial';if(mult>=100)return 'Infernal';if(mult>=50)return 'Celestial';if(mult>=20)return 'Sombria';if(mult>=10)return 'Galáctica';if(mult>=5)return 'Dourada';if(mult>=4)return 'Elétrica';if(mult>=3)return 'Prismática';if(mult>=2)return 'Brilhante';return 'Normal'}
 function incomeMultiplier(){return (1+clampLevel(state.incomeLevel))*(1+Math.max(0,state.rebirths||0)*.25)}
 function globalIncomeMultiplier(){return 1+(Math.max(0,Number(state.globalBonusPercent)||0)/100)}
-function currentIncome(){return state.equipped.reduce((sum,id)=>sum+(petData(id)?.rate||0)*mutationMult(id),0)*incomeMultiplier()*globalIncomeMultiplier()*potionMoneyMultiplier()*itemMoneyMultiplier()*eventMoneyMultiplier()*friendBonusMultiplier()}
+function currentIncome(){return state.equipped.reduce((sum,id)=>sum+(petData(id)?.rate||0)*mutationMult(id),0)*incomeMultiplier()*globalIncomeMultiplier()*potionMoneyMultiplier()*itemMoneyMultiplier()*eventMoneyMultiplier()*friendBonusMultiplier()*Math.max(1,Number(state.attributeMultiplier)||1)}
 function petPower(p){return (p?.rate||0)*mutationMult(p?.id||'')*(1+(p?.rarity||0)*.65)}
-function teamPower(){return state.equipped.reduce((sum,id)=>sum+petPower(petData(id)),0)}
+function teamPower(){return state.equipped.reduce((sum,id)=>sum+petPower(petData(id)),0)*Math.max(1,Number(state.attributeMultiplier)||1)}
 function luckMult(){return 1+clampLevel(state.luckLevel)+(Math.max(0,state.rebirths||0)*5)}
 function diceLuckMultiplier(){return (allDice.find(d=>d.id===state.equippedDice)||halloweenDice[0]).luck}
 function formatLuckMultiplier(n){return format(Number(n)||0)}
@@ -886,7 +920,7 @@ function renderUpgradeButton(id,kind){
  button.title=batch.levels?`Comprar ${batch.levels} nível(is) neste clique (lote ${state.upgradeBatch.toLocaleString('pt-BR')}).`:`São necessárias ${format(batch.targetCost)} moedas para comprar o próximo lote completo.`;
 }
 function renderUI(){
- $('coins').textContent=format(state.coins);$('income').textContent=format(currentIncome());$('luck').textContent='x'+formatLuckMultiplier(luckMult());$('fragments').textContent=format(state.fragments||0);$('clovers').textContent=format(state.clovers||0);
+ $('coins').textContent=format(state.coins);$('income').textContent=format(currentIncome());$('luck').textContent='x'+formatLuckMultiplier(luckMult()*Math.max(1,Number(state.attributeMultiplier)||1));$('fragments').textContent=format(state.fragments||0);$('clovers').textContent=format(state.clovers||0);
  $('backpackBtn').setAttribute('aria-label',`Abrir mochila com ${state.owned.length} pets`);
  $('rollBtn').textContent=`🎲 GIRAR · ${rollCost()}`;
  const luckMax=state.luckLevel>=MAX_UPGRADE_LEVEL, speedMax=state.speedLevel>=MAX_UPGRADE_LEVEL, incomeMax=state.incomeLevel>=MAX_UPGRADE_LEVEL, slotsMax=state.slots>=MAX_SLOTS, autoMax=state.autoRollLevel>=MAX_AUTO_ROLL_LEVEL;
@@ -896,18 +930,18 @@ function renderUI(){
  renderUpgradeButton('buyAutoRoll','auto');
  renderUpgradeButton('buySlot','slot');
  renderUpgradeButton('buyIncome','income');renderUpgradeButton('buyDouble','double');renderUpgradeButton('buyQuad','quad');
- $('luckDesc').textContent=luckMax?`Sorte x${luckMult()} · nível máximo 1.000.000/1.000.000.`:`Sorte x${luckMult()} · nível ${(state.luckLevel+1).toLocaleString('pt-BR')}/1.000.000; próximo nível aumenta a sorte.`;
- $('speedDesc').textContent=speedMax?'Velocidade de giro máxima: nível 1.000.000/1.000.000.':`Giro rápido ${(state.speedLevel+1).toLocaleString('pt-BR')}/1.000.000 · reduz o intervalo do dado.`;
- $('moveSpeedDesc').textContent=state.moveSpeedLevel>=MAX_UPGRADE_LEVEL?'Velocidade de movimento máxima: nível 1.000.000/1.000.000.':`Movimento ${(state.moveSpeedLevel+1).toLocaleString('pt-BR')}/1.000.000 · velocidade atual x${(1+state.moveSpeedLevel*.004).toFixed(2)}.`;
- $('autoRollDesc').textContent=state.autoRollLevel===0?'Bloqueado. Compra o nível 1 para desbloquear giros automáticos.':`Giro automático ${state.autoRollLevel.toLocaleString('pt-BR')}/1.000.000 · intervalo aproximado ${Math.round(autoRollInterval())} ms. Usa o botão AUTO para ligar/desligar.`;
+ $('luckDesc').textContent=luckMax?`Sorte x${luckMult()} · nível máximo 1.000.000.000/1.000.000.000.`:`Sorte x${luckMult()} · nível ${(state.luckLevel+1).toLocaleString('pt-BR')}/1.000.000.000; próximo nível aumenta a sorte.`;
+ $('speedDesc').textContent=speedMax?'Velocidade de giro máxima: nível 1.000.000.000/1.000.000.000.':`Giro rápido ${(state.speedLevel+1).toLocaleString('pt-BR')}/1.000.000.000 · reduz o intervalo do dado.`;
+ $('moveSpeedDesc').textContent=state.moveSpeedLevel>=MAX_UPGRADE_LEVEL?'Velocidade de movimento máxima: nível 1.000.000.000/1.000.000.000.':`Movimento ${(state.moveSpeedLevel+1).toLocaleString('pt-BR')}/1.000.000.000 · velocidade atual x${(1+state.moveSpeedLevel*.004).toFixed(2)}.`;
+ $('autoRollDesc').textContent=state.autoRollLevel===0?'Bloqueado. Compra o nível 1 para desbloquear giros automáticos.':`Giro automático ${state.autoRollLevel.toLocaleString('pt-BR')}/1.000.000.000 · intervalo aproximado ${Math.round(autoRollInterval())} ms. Usa o botão AUTO para ligar/desligar.`;
  $('slotsDesc').textContent=slotsMax?`Máximo de ${MAX_SLOTS} criaturas equipado.`:`Equipe até ${state.slots} criaturas. Um clique compra até 10 espaços, até ao máximo de ${MAX_SLOTS}.`;
  $('incomeDesc').textContent=`Multiplicador base x${format(incomeMultiplier())}. Bônus global +${state.globalBonusPercent}% · amigos x${friendBonusMultiplier().toFixed(2)}.`;
- $('doubleDesc').textContent=`Nível ${state.doubleRollLevel.toLocaleString('pt-BR')}/1.000.000 · chance de 2 cópias: ${(Math.min(.5,state.doubleRollLevel/1000000*.5)*100).toFixed(2)}%.`;
- $('quadDesc').textContent=`Nível ${state.quadRollLevel.toLocaleString('pt-BR')}/1.000.000 · chance de 4 cópias: ${(Math.min(.15,state.quadRollLevel/1000000*.15)*100).toFixed(2)}%.`;
+ $('doubleDesc').textContent=`Nível ${state.doubleRollLevel.toLocaleString('pt-BR')}/1.000.000.000 · chance de 2 cópias: ${(Math.min(.5,state.doubleRollLevel/MAX_UPGRADE_LEVEL*.5)*100).toFixed(2)}%.`;
+ $('quadDesc').textContent=`Nível ${state.quadRollLevel.toLocaleString('pt-BR')}/1.000.000.000 · chance de 4 cópias: ${(Math.min(.15,state.quadRollLevel/MAX_UPGRADE_LEVEL*.15)*100).toFixed(2)}%.`;
  $('upgradeBatch').value=String(state.upgradeBatch||10);
  $('eventBadge').textContent=activeGlobalEvent().label;
  const effectBits=[];for(const p of POTION_DEFS){if(potionActive(p.id))effectBits.push(`${p.emoji} ${Math.ceil((state.potionEffects[p.id+'Until']-Date.now())/1000)}s`)}for(const [k,icon] of Object.entries({luck:'🍀',money:'💰',damage:'⚔️',health:'❤️'})){if(itemActive(k))effectBits.push(`${icon} ${Math.ceil((state.itemEffects[k+'Until']-Date.now())/1000)}s`)}if(cloverLuckMultiplier()>1)effectBits.push(`🍀 x${format(cloverLuckMultiplier())}`);$('activeEffects').textContent=effectBits.slice(0,6).join(' · ');
- $('shopNote').textContent=`Equipe: ${state.equipped.length}/${state.slots} · Renda: ${format(currentIncome())}/s · melhorias até 1.000.000.`;
+ $('shopNote').textContent=`Equipe: ${state.equipped.length}/${state.slots} · Renda: ${format(currentIncome())}/s · melhorias até 1.000.000.000.`;
  $('autoRollToggle').disabled=state.autoRollLevel===0;
  $('autoRollToggle').textContent=state.autoRollLevel===0?'🤖 AUTO: BLOQUEADO':`🤖 AUTO: ${state.autoRollEnabled?'ON':'OFF'} · Nv ${state.autoRollLevel}`;
  $('autoRollToggle').style.opacity=state.autoRollLevel===0?'.55':'1';
@@ -921,20 +955,22 @@ function renderUI(){
 }
 function showToast(msg){$('toast').textContent=msg;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',2300)}
 function weightedRarity(){
- const inHalloween=isInHalloweenZone(), inSnow=isInSnowZone(), inVolcano=isInVolcanoZone(), inCyber=isInCyberZone(), dieLuck=diceLuckMultiplier();
- const luckTotal=cloverLuckMultiplier()*potionLuckMultiplier()*itemLuckMultiplier()*eventLuckMultiplier();
- const weights=rarities.map((r,i)=>{
-  const available=allPets.some(p=>p.rarity===i&&petAvailableInZone(p,inHalloween,inSnow,inVolcano,inCyber));
-  if(!available)return 0;
-  return r.weight*Math.pow(luckTotal,i*.08)*Math.pow(dieLuck,i*.19);
+ const inHalloween=isInHalloweenZone(), inSnow=isInSnowZone(), inVolcano=isInVolcanoZone(), inCyber=isInCyberZone(), dieLuck=Math.max(1,diceLuckMultiplier());
+ const luckTotal=Math.max(1,Number(state.attributeMultiplier)||1)*cloverLuckMultiplier()*potionLuckMultiplier()*itemLuckMultiplier()*eventLuckMultiplier();
+ const logWeights=rarities.map((r,i)=>{
+  const available=i>=V13_BASE_RARITY_COUNT||allPets.some(p=>p.rarity===i&&petAvailableInZone(p,inHalloween,inSnow,inVolcano,inCyber));
+  if(!available||!(r.weight>0))return -Infinity;
+  return Math.log(r.weight)+i*.08*Math.log(Math.max(1,luckTotal))+i*.19*Math.log(dieLuck);
  });
- const total=weights.reduce((a,b)=>a+b,0);let x=Math.random()*total;
- for(let i=0;i<weights.length;i++){x-=weights[i];if(x<=0)return i}return 0;
+ const maxLog=Math.max(...logWeights);if(!Number.isFinite(maxLog))return 0;
+ const weights=logWeights.map(value=>Number.isFinite(value)?Math.exp(Math.max(-745,value-maxLog)):0);
+ const total=weights.reduce((a,b)=>a+b,0);if(!(total>0))return 0;
+ let x=Math.random()*total;for(let i=0;i<weights.length;i++){x-=weights[i];if(x<=0)return i}return weights.length-1;
 }
 function autoRollInterval(){return Math.max(240,(2400-((Math.max(1,state.autoRollLevel)-1)/(MAX_AUTO_ROLL_LEVEL-1))*1950)*potionRollMultiplier())}
 function rollMutation(rarityIndex=0){
  const mutationLuckLevel=Math.min(MAX_UPGRADE_LEVEL,Math.max(0,Number(state.luckLevel)||0)+Math.max(0,Number(state.rebirths)||0)*5000);
- const upgradeMutationChance=Math.min(.15,mutationLuckLevel/1000000*.15);
+ const upgradeMutationChance=Math.min(.15,mutationLuckLevel/MAX_UPGRADE_LEVEL*.15);
  const chance=Math.min(.47,.10+Math.max(0,rarityIndex)*.002+Math.min(.08,Math.log2(diceLuckMultiplier()+1)*.006)+upgradeMutationChance);
  if(Math.random()>chance)return 1;
  const choices=[2,4,8,16,32,64,128,256,512,1024,2048];
@@ -944,8 +980,8 @@ function rollMutation(rarityIndex=0){
  return 2;
 }
 function rollCopyCount(){
- const quadChance=Math.min(.15,(state.quadRollLevel||0)/1000000*.15);
- const doubleChance=Math.min(.5,(state.doubleRollLevel||0)/1000000*.5);
+ const quadChance=Math.min(.15,(state.quadRollLevel||0)/MAX_UPGRADE_LEVEL*.15);
+ const doubleChance=Math.min(.5,(state.doubleRollLevel||0)/MAX_UPGRADE_LEVEL*.5);
  const r=Math.random();if(r<quadChance)return 4;if(r<quadChance+doubleChance)return 2;return 1;
 }
 function currentMissionDay(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
@@ -1266,6 +1302,42 @@ function usePotion(id){
  if(id==='health'&&battleRuntime){const base=105+Math.min(95,Math.sqrt(Math.max(0,teamPower()))*4);battleRuntime.playerMaxHp=Math.round(base*2);battleRuntime.playerHp=battleRuntime.playerMaxHp;updateBattleBars()}
  save();renderUI();renderPotionList();showToast(`${p.name} ativada; a duração acumulou mais 120 segundos!`);
 }
+
+const ATTRIBUTE_OFFERS=[
+ {multiplier:2,cost:1e6,label:"x2"},
+ {multiplier:100,cost:1e12,label:"x100"},
+ {multiplier:10000,cost:1e18,label:"x10.000"},
+ {multiplier:1000000,cost:1e24,label:"x1 milhão"},
+ {multiplier:100000000,cost:1e30,label:"x100 milhões"}
+];
+function renderAttributeMachine(){
+ const current=Math.max(1,Number(state.attributeMultiplier)||1);
+ $('attributeMultiplierStatus').textContent="Atributo atual: x"+format(current)+" · multiplica sorte, renda e poder de batalha permanentemente.";
+ $('attributeMultiplierOptions').innerHTML=ATTRIBUTE_OFFERS.map(o=>'<div class="diceCard"><div class="diceCardIcon">🧬</div><div class="diceCardInfo"><strong>Multiplicador '+o.label+'</strong><small>Custo: '+format(o.cost)+' moedas · efeito permanente</small></div><button data-attribute-multiplier="'+o.multiplier+'" '+(current>=o.multiplier||state.coins<o.cost?'disabled':'')+' class="gold">'+(current>=o.multiplier?'ADQUIRIDO':'COMPRAR · '+format(o.cost))+'</button></div>').join('');
+ $('attributeMultiplierOptions').querySelectorAll('[data-attribute-multiplier]').forEach(b=>b.addEventListener('click',()=>buyAttributeMultiplier(Number(b.dataset.attributeMultiplier))));
+}
+function openAttributeMachine(){
+ if(stationDistance(attributeStation)>4.8){showToast('Aproxima-te da Máquina de Atributos.');return}
+ renderAttributeMachine();$('attributeMachineModal').style.display='flex';
+}
+function buyAttributeMultiplier(multiplier){
+ const offer=ATTRIBUTE_OFFERS.find(o=>o.multiplier===multiplier);if(!offer)return;
+ if((Number(state.attributeMultiplier)||1)>=offer.multiplier){showToast('Já tens este multiplicador ou um superior.');return}
+ if(state.coins<offer.cost){showToast('Precisas de '+format(offer.cost)+' moedas para comprar '+offer.label+'.');return}
+ state.coins-=offer.cost;state.attributeMultiplier=offer.multiplier;save();renderUI();renderAttributeMachine();showToast('🧬 Atributo permanente '+offer.label+' adquirido! Sorte, renda e poder multiplicados.');
+}
+function anyMachineModalOpen(){return ['arena','mutations','globalMachine','cloverMachine','potionModal','sellShop','diceShop','attributeMachineModal'].some(id=>$(id)?.style.display==='flex')}
+function autoOpenNearbyMachine(key){
+ if(anyMachineModalOpen())return;
+ if(key==='arena')openArena();
+ else if(key==='fusion')openMutations();
+ else if(key==='global')openGlobalMachine();
+ else if(key==='clover')openCloverMachine();
+ else if(key==='sell')openSellShop();
+ else if(key==='attribute')openAttributeMachine();
+ else if(key==='potion')openPotionModal();
+ else if(['cyberdice','eventdice','snowdice','volcanodice'].includes(key))openDiceShop();
+}
 function openCloverMachine(){
  if(stationDistance(cloverStation)>4.8){showToast('Aproxima-te da Máquina de Trevos verde para utilizar os teus trevos.');return}
  renderCloverMachine();$('cloverMachine').style.display='flex';
@@ -1364,7 +1436,9 @@ function finishBattle(won){
 
 $('arenaBtn').addEventListener('click',openArena);$('mutationBtn').addEventListener('click',openMutations);$('globalMachineBtn').addEventListener('click',openGlobalMachine);
 $('halloweenBtn').addEventListener('click',toggleHalloweenArea);$('snowBtn').addEventListener('click',toggleSnowArea);$('volcanoBtn').addEventListener('click',toggleVolcanoArea);$('diceShopBtn').addEventListener('click',openDiceShop);$('cloverMachineBtn').addEventListener('click',openCloverMachine);$('potionBtn').addEventListener('click',openPotionModal);
-$('closeCloverMachine').addEventListener('click',()=>$('cloverMachine').style.display='none');$('cloverMachine').addEventListener('click',e=>{if(e.target===$('cloverMachine'))$('cloverMachine').style.display='none'});
+$('closeCloverMachine').addEventListener('click',()=>$('cloverMachine').style.display='none');
+$('closeAttributeMachine').addEventListener('click',()=>$('attributeMachineModal').style.display='none');
+$('attributeMachineModal').addEventListener('click',e=>{if(e.target===$('attributeMachineModal'))$('attributeMachineModal').style.display='none'});$('cloverMachine').addEventListener('click',e=>{if(e.target===$('cloverMachine'))$('cloverMachine').style.display='none'});
 $('closePotionModal').addEventListener('click',()=>$('potionModal').style.display='none');$('potionModal').addEventListener('click',e=>{if(e.target===$('potionModal'))$('potionModal').style.display='none'});
 $('closeDiceShop').addEventListener('click',()=>$('diceShop').style.display='none');
 $('sellShopBtn').addEventListener('click',openSellShop);$('closeSellShop').addEventListener('click',()=>$('sellShop').style.display='none');
@@ -1501,6 +1575,8 @@ const volcanoStation=makeStation(VOLCANO_CENTER.x-4.1,VOLCANO_CENTER.z-1.4,'volc
 const volcanoDiceShopStation=makeStation(VOLCANO_CENTER.x+4.1,VOLCANO_CENTER.z-1.4,'volcanodice',0xffae40,'DADOS DE MAGMA');
 const cloverStation=makeStation(0,-8.8,'clover',0x42ec91,'MÁQUINA DE TREVO');
 const sellShopStation=makeStation(-5.2,-5.8,'sell',0xffc84b,'LOJA DE PETS');
+const attributeStation=makeStation(-5.4,-12.2,'attribute',0xe35cff,'MÁQUINA DE ATRIBUTOS');
+const potionStation=makeStation(5.4,-12.2,'potion',0x9b7cff,'MÁQUINA DE POÇÕES');
 const cyberArea=new THREE.Group();cyberArea.position.set(HALLOWEEN_CENTER.x,0,HALLOWEEN_CENTER.z);cyberArea.scale.setScalar(1.6);world.add(cyberArea);
 const halloweenIslandBase=new THREE.Mesh(new THREE.CylinderGeometry(11.4,9.8,1.8,64,1),mat(0x38263d,.88));halloweenIslandBase.position.set(HALLOWEEN_CENTER.x,-.965,HALLOWEEN_CENTER.z);halloweenIslandBase.castShadow=true;halloweenIslandBase.receiveShadow=true;world.add(halloweenIslandBase);
 const halloweenIslandUnderside=new THREE.Mesh(new THREE.ConeGeometry(9.8,3.2,48),mat(0x211b2b,.9));halloweenIslandUnderside.position.set(HALLOWEEN_CENTER.x,-3.1,HALLOWEEN_CENTER.z);world.add(halloweenIslandUnderside);
@@ -1641,7 +1717,7 @@ let diceSpin=0, walkTime=0, incomeAccumulator=0;
 function animate(now){
  requestAnimationFrame(animate);const dt=Math.min(.045,(now-lastTime)/1000);lastTime=now;
  // Automatic rolls pause while menus, result dialogs or the intro are open.
- if(state.autoRollEnabled&&state.autoRollLevel>0&&now>=nextAutoRollAt&&$('shop').style.display!=='flex'&&$('result').style.display!=='flex'&&$('arena').style.display!=='flex'&&$('mutations').style.display!=='flex'&&$('globalMachine').style.display!=='flex'&&$('inventory').style.display!=='flex'&&$('diceShop').style.display!=='flex'&&$('sellShop').style.display!=='flex'&&$('indexModal').style.display!=='flex'&&$('cloverMachine').style.display!=='flex'&&$('potionModal').style.display!=='flex'&&$('hubModal').style.display!=='flex'&&$('rebirthModal').style.display!=='flex'&&$('dailyModal').style.display!=='flex'&&$('missionModal').style.display!=='flex'&&$('passModal').style.display!=='flex'&&$('codesModal').style.display!=='flex'&&$('paidShopModal').style.display!=='flex'&&$('socialModal').style.display!=='flex'&&$('leaderboardModal').style.display!=='flex'&&$('intro').style.display!=='flex'&&!rollBusy&&state.coins>=rollCost()){
+ if(state.autoRollEnabled&&state.autoRollLevel>0&&now>=nextAutoRollAt&&$('shop').style.display!=='flex'&&$('result').style.display!=='flex'&&$('arena').style.display!=='flex'&&$('mutations').style.display!=='flex'&&$('globalMachine').style.display!=='flex'&&$('inventory').style.display!=='flex'&&$('diceShop').style.display!=='flex'&&$('sellShop').style.display!=='flex'&&$('indexModal').style.display!=='flex'&&$('cloverMachine').style.display!=='flex'&&$('potionModal').style.display!=='flex'&&$('attributeMachineModal').style.display!=='flex'&&$('hubModal').style.display!=='flex'&&$('rebirthModal').style.display!=='flex'&&$('dailyModal').style.display!=='flex'&&$('missionModal').style.display!=='flex'&&$('passModal').style.display!=='flex'&&$('codesModal').style.display!=='flex'&&$('paidShopModal').style.display!=='flex'&&$('socialModal').style.display!=='flex'&&$('leaderboardModal').style.display!=='flex'&&$('intro').style.display!=='flex'&&!rollBusy&&state.coins>=rollCost()){
   nextAutoRollAt=now+autoRollInterval();roll();
  }
  // Update the visible bot-vs-team fight while the Arena card is open.
@@ -1659,7 +1735,7 @@ function animate(now){
  const forward=(joy.active?-joy.y:0)+(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
  const side=(joy.active?joy.x:0)+(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
  const moving=Math.hypot(forward,side)>.12;
- if(moving&&$('shop').style.display!=='flex'&&$('result').style.display!=='flex'&&$('intro').style.display!=='flex'&&$('inventory').style.display!=='flex'&&$('arena').style.display!=='flex'&&$('mutations').style.display!=='flex'&&$('globalMachine').style.display!=='flex'&&$('diceShop').style.display!=='flex'&&$('sellShop').style.display!=='flex'&&$('indexModal').style.display!=='flex'&&$('cloverMachine').style.display!=='flex'&&$('potionModal').style.display!=='flex'){
+ if(moving&&$('shop').style.display!=='flex'&&$('result').style.display!=='flex'&&$('intro').style.display!=='flex'&&$('inventory').style.display!=='flex'&&$('arena').style.display!=='flex'&&$('mutations').style.display!=='flex'&&$('globalMachine').style.display!=='flex'&&$('diceShop').style.display!=='flex'&&$('sellShop').style.display!=='flex'&&$('indexModal').style.display!=='flex'&&$('cloverMachine').style.display!=='flex'&&$('potionModal').style.display!=='flex'&&$('attributeMachineModal').style.display!=='flex'){
    const dir=new THREE.Vector3(side,0,forward);dir.normalize();const angle=yaw;
    // Correct camera-relative movement: joystick up (forward > 0) moves away from camera, into the world.
    const dx=dir.x*Math.cos(angle)-dir.z*Math.sin(angle);
@@ -1676,16 +1752,26 @@ function animate(now){
  for(let i=0;i<basePetDisplays.length;i++){const o=basePetDisplays[i];if(o.visible)o.position.y=.65+Math.sin(now*.002+i*.7)*.12}baseCore.rotation.y+=dt*.7;
  snowArea.children.forEach(o=>{if(o.userData.floatPhase!==undefined)o.position.y=1.5+Math.sin(now*.002+o.userData.floatPhase)*.4});
  volcanoArea.children.forEach(o=>{if(o.userData.floatPhase!==undefined)o.position.y=1.4+Math.sin(now*.002+o.userData.floatPhase)*.55});
- for(const st of [arenaStation,mutationStation,globalStation,halloweenStation,diceShopStation,halloweenEventStation,halloweenEventDiceStation,snowStation,snowDiceShopStation,volcanoStation,volcanoDiceShopStation,cloverStation,sellShopStation]){st.userData.portal.rotation.z+=dt*.22;st.userData.inner.rotation.y+=dt*.9;st.userData.inner.rotation.x+=dt*.3;st.userData.halo.rotation.z-=dt*.28;st.userData.motes.forEach((m,i)=>{m.position.y=1.25+Math.sin(now*.0025+m.userData.phase)*.8;m.position.x=Math.cos(m.userData.phase+now*.0007)*1.85;m.position.z=Math.sin(m.userData.phase+now*.0007)*1.85});if(st.userData.bot){st.userData.bot.position.y=.04+Math.sin(now*.003)*.08;st.userData.bot.rotation.y=Math.sin(now*.001)*.15}}
+ for(const st of [arenaStation,mutationStation,globalStation,halloweenStation,diceShopStation,halloweenEventStation,halloweenEventDiceStation,snowStation,snowDiceShopStation,volcanoStation,volcanoDiceShopStation,cloverStation,sellShopStation,attributeStation,potionStation]){st.userData.portal.rotation.z+=dt*.22;st.userData.inner.rotation.y+=dt*.9;st.userData.inner.rotation.x+=dt*.3;st.userData.halo.rotation.z-=dt*.28;st.userData.motes.forEach((m,i)=>{m.position.y=1.25+Math.sin(now*.0025+m.userData.phase)*.8;m.position.x=Math.cos(m.userData.phase+now*.0007)*1.85;m.position.z=Math.sin(m.userData.phase+now*.0007)*1.85});if(st.userData.bot){st.userData.bot.position.y=.04+Math.sin(now*.003)*.08;st.userData.bot.rotation.y=Math.sin(now*.001)*.15}}
  petMeshes.forEach((m,i)=>{const angle=now*.0012+m.userData.offset+i*2.4;const targetX=player.position.x+Math.cos(angle)*1.35;const targetZ=player.position.z+Math.sin(angle)*1.35;const bob=.75+Math.sin(now*.004+i)*.12;m.position.x+=(targetX-m.position.x)*Math.min(1,dt*5);m.position.z+=(targetZ-m.position.z)*Math.min(1,dt*5);m.position.y+=(bob-m.position.y)*Math.min(1,dt*5);m.rotation.y+=dt*.7;const halo=m.children[m.children.length-1];if(halo)halo.rotation.z+=dt*.8});
  const target=new THREE.Vector3(player.position.x,player.position.y+1.2,player.position.z);
  const distance=8.5, horiz=Math.cos(pitch)*distance, vert=2.4+Math.sin(pitch)*distance;
  const desired=new THREE.Vector3(target.x+Math.sin(yaw)*horiz,target.y+vert,target.z+Math.cos(yaw)*horiz);
  camera.position.lerp(desired,Math.min(1,dt*5));camera.lookAt(target);
  const arenaD=stationDistance(arenaStation),mutationD=stationDistance(mutationStation);
- const globalD=stationDistance(globalStation),halloweenD=stationDistance(halloweenStation),diceD=stationDistance(diceShopStation),eventD=stationDistance(halloweenEventStation),eventDiceD=stationDistance(halloweenEventDiceStation),snowD=stationDistance(snowStation),snowDiceD=stationDistance(snowDiceShopStation),volcanoD=stationDistance(volcanoStation),volcanoDiceD=stationDistance(volcanoDiceShopStation),cloverD=stationDistance(cloverStation),sellD=stationDistance(sellShopStation);
- const nextNear=arenaD<4.7?'arena':mutationD<4.7?'fusion':globalD<4.7?'global':cloverD<4.8?'clover':sellD<4.7?'sell':halloweenD<5.5?'cyber':diceD<5.3?'cyberdice':eventD<5.5?'halloweenEvent':eventDiceD<5.3?'eventdice':snowD<5.5?'snow':snowDiceD<5.3?'snowdice':volcanoD<5.5?'volcano':volcanoDiceD<5.3?'volcanodice':'';
- if(nextNear!==nearbyStation){nearbyStation=nextNear;if(nextNear==='arena')showToast('Estás na máquina vermelha! Abre a Arena.');else if(nextNear==='fusion')showToast('Máquina de Fusão: abre FUSÃO e seleciona três pets. As mutações aparecem ao girar o dado.');else if(nextNear==='global')showToast('Máquina de Bónus Global.');else if(nextNear==='clover')showToast('Máquina de Trevos!');else if(nextNear==='sell')showToast('Loja de Pets: vender e configurar descarte.');else if(nextNear==='cyber')showToast(state.cyberUnlocked?'Portal Cyber! Usa o botão CYBER para entrar.':'Portal Cyber: desbloqueia por 10B de moedas.');else if(nextNear==='cyberdice')showToast('Loja de dados Cyber!');else if(nextNear==='halloweenEvent')showToast('Portal do Evento Halloween! Abre MAIS para entrar.');else if(nextNear==='eventdice')showToast('Dados especiais do Evento Halloween.');else if(nextNear==='snow')showToast(state.snowUnlocked?'Portal da Neve!':'Desbloqueia a Neve por 10T.');else if(nextNear==='snowdice')showToast('Loja de Dados Glaciares!');else if(nextNear==='volcano')showToast(state.volcanoUnlocked?'Portal do Vulcão!':'Desbloqueia o Vulcão por 1000T.');else if(nextNear==='volcanodice')showToast('Loja de Dados do Vulcão!');}
+ const globalD=stationDistance(globalStation),halloweenD=stationDistance(halloweenStation),diceD=stationDistance(diceShopStation),eventD=stationDistance(halloweenEventStation),eventDiceD=stationDistance(halloweenEventDiceStation),snowD=stationDistance(snowStation),snowDiceD=stationDistance(snowDiceShopStation),volcanoD=stationDistance(volcanoStation),volcanoDiceD=stationDistance(volcanoDiceShopStation),cloverD=stationDistance(cloverStation),sellD=stationDistance(sellShopStation),attributeD=stationDistance(attributeStation),potionD=stationDistance(potionStation);
+ const nextNear=arenaD<4.7?'arena':mutationD<4.7?'fusion':globalD<4.7?'global':cloverD<4.8?'clover':sellD<4.7?'sell':attributeD<4.8?'attribute':potionD<4.8?'potion':halloweenD<5.5?'cyber':diceD<5.3?'cyberdice':eventD<5.5?'halloweenEvent':eventDiceD<5.3?'eventdice':snowD<5.5?'snow':snowDiceD<5.3?'snowdice':volcanoD<5.5?'volcano':volcanoDiceD<5.3?'volcanodice':'';
+ if(nextNear!==nearbyStation){
+  nearbyStation=nextNear;
+  if(nextNear) {
+   const machineKeys=['arena','fusion','global','clover','sell','attribute','potion','cyberdice','eventdice','snowdice','volcanodice'];
+   if(machineKeys.includes(nextNear)) autoOpenNearbyMachine(nextNear);
+   else if(nextNear==='cyber')showToast(state.cyberUnlocked?'Portal Cyber: aproxima-te para usar o portal.':'Portal Cyber: desbloqueia por 10B de moedas.');
+   else if(nextNear==='halloweenEvent')showToast('Portal do Evento Halloween: aproxima-te para entrar/sair.');
+   else if(nextNear==='snow')showToast(state.snowUnlocked?'Portal da Neve: aproxima-te para usar o portal.':'Desbloqueia a Neve por 10T.');
+   else if(nextNear==='volcano')showToast(state.volcanoUnlocked?'Portal do Vulcão: aproxima-te para usar o portal.':'Desbloqueia o Vulcão por 1000T.');
+  }
+ }
  if(multiplayerChannel&&now-lastPositionBroadcast>1200){lastPositionBroadcast=now;broadcastPosition().catch(()=>{});for(const [id,remote] of remotePlayers){if(Date.now()-remote.lastSeen>9000){world.remove(remote.group);if(remote.base){world.remove(remote.base.group);remote.base.petLabels?.forEach(clearSpriteLabel);if(remote.base.label)clearSpriteLabel(remote.base.label)}remotePlayers.delete(id)}}}
  if($('arena').style.display==='flex')refreshBattleUI();
  renderer.render(scene,camera);
