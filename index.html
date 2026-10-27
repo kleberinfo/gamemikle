@@ -692,7 +692,7 @@ function v13Color(index){
 const V13_RARITY_EMOJIS=[["🌌","🐉","💎"],["♾️","🪽","⚡"],["🪐","👁️","🔥"],["🧬","🐲","🔮"],["🌠","🦖","💠"],["🛸","🦁","✨"],["🌑","🐙","🌀"],["💫","🦅","👑"],["🪬","🐺","🌟"],["☄️","🤖","💥"]];
 for(let tier=1;tier<=V13_EXTRA_RARITY_COUNT;tier++){
  const base=rarities[V13_BASE_RARITY_COUNT-1];
- rarities.push({name:"Ascensão "+v13Roman(tier),color:v13Color(tier),weight:base.weight*.65*Math.pow(.92,tier),rate:base.rate*Math.pow(1.6,tier),emoji:V13_RARITY_EMOJIS[(tier-1)%V13_RARITY_EMOJIS.length],desc:"Raridade extra da v13 · nível "+tier+" de 200, acima da raridade suprema anterior.",v13:true});
+ rarities.push({name:"Ascensão "+v13Roman(tier),color:v13Color(tier),weight:base.weight*.65*Math.pow(.92,tier),rate:base.rate*2000*Math.pow(1.6,tier),emoji:V13_RARITY_EMOJIS[(tier-1)%V13_RARITY_EMOJIS.length],desc:"Raridade extra da v13 · nível "+tier+" de 200, acima da raridade suprema anterior.",v13:true});
 }
 const allPets=[
  {id:'pip',name:'Pip',rarity:0,emoji:'🐣',rate:1},{id:'mush',name:'Cogumelo',rarity:0,emoji:'🍄',rate:2},{id:'rocky',name:'Rochito',rarity:0,emoji:'🪨',rate:3},
