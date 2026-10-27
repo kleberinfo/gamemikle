@@ -4,8 +4,10 @@ A versão 13.1 traz:
 - Abreviações curtas para moedas e renda, incluindo a escala vigintilhões (`vig`).
 - Cartões de moedas e renda maiores no HUD; fragmentos e trevos mais compactos.
 - Máquina de Atributos paga com fragmentos obtidos na Arena.
-- Melhoria progressiva de fragmentos e três melhorias de endgame com custos em vigintilhões.
+- Melhoria progressiva de fragmentos e três melhorias finais com custos de 1, 5 e 25 vigintilhões.
 - Mais 50 raridades acima da v13, cada uma com cinco pets (250 pets novos).
+
+**Catálogo total:** 293 raridades e 1.482 pets.
 
 ## Deploy no Netlify
 - Branch de produção: `main`
