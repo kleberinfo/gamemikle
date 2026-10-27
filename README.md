@@ -1,11 +1,11 @@
-# Gamemikle v13
+# Gamemikle v13.1
 
-Jogo web estático. A versão 13 inclui:
-- 200 raridades novas, cada uma com cinco pets gerados no catálogo (243 raridades e 1.232 pets no total).
-- Máquinas de Arena, Fusão, Bónus Global, Trevos, Poções, Loja de Pets e lojas de dados que abrem automaticamente ao aproximar-se.
-- Máquina de Atributos com multiplicadores permanentes x2, x100, x10.000, x1.000.000 e x100.000.000.
-- Melhorias até 1.000.000.000 de níveis e compras em lotes até 1.000.000.000.
-- Atalhos de máquinas removidos do menu para reduzir a quantidade de botões.
+A versão 13.1 traz:
+- Abreviações curtas para moedas e renda, incluindo a escala vigintilhões (`vig`).
+- Cartões de moedas e renda maiores no HUD; fragmentos e trevos mais compactos.
+- Máquina de Atributos paga com fragmentos obtidos na Arena.
+- Melhoria progressiva de fragmentos e três melhorias de endgame com custos em vigintilhões.
+- Mais 50 raridades acima da v13, cada uma com cinco pets (250 pets novos).
 
 ## Deploy no Netlify
 - Branch de produção: `main`
