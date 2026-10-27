@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#10172c">
-<title>Gamemikle v13.2</title>
+<title>Gamemikle v13.3</title>
 <style>
 :root{--glass:rgba(14,22,44,.86);--line:rgba(255,255,255,.16);--gold:#ffd86b;--cyan:#76e8ff}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10172c;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;touch-action:none}
@@ -224,7 +224,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
 #attributeMachineModal .modal{max-width:500px}
 
 
-/* v13.2: rebirth cost scales on every rebirth */
+/* v13.3: indexed pet lookup, cached rarity pools, bounded auto-equip, 5s persistence */
 #top .stat:nth-child(1),#top .stat:nth-child(2){flex:1.45 1 0;min-width:0;padding:8px 10px}
 #top .stat:nth-child(1) .value,#top .stat:nth-child(2) .value{font-size:clamp(14px,2.2vw,19px);letter-spacing:-.035em}
 #top .stat:nth-child(4),#top .stat:nth-child(5){flex:.62 1 0;min-width:0;padding:6px 5px}
@@ -254,7 +254,7 @@ h2{margin:0;font-size:22px}p{color:#c8d2ed;font-size:13px;line-height:1.45}
   <div class="panel stat"><div class="small">Trevos</div><div class="value" id="clovers">0</div></div>
 </div>
 <div id="brand">🎲 GAMEMIKLE</div>
-<div id="versionLabel" aria-hidden="true">v13.2</div>
+<div id="versionLabel" aria-hidden="true">v13.3</div>
 <div id="eventBadge" aria-live="polite">🎉 EVENTO · 2X SORTE</div>
 <div id="activeEffects" aria-live="polite"></div>
 
@@ -464,7 +464,7 @@ function clampLevel(value){const n=Number.isFinite(Number(value))?Math.floor(Num
 function normalizeState(raw){
  const source=raw&&typeof raw==='object'?raw:{};
  const s={...defaultState,...source};
- s.attributeMultiplier=[1,2,100,10000,1000000,100000000].includes(Number(s.attributeMultiplier))?Number(s.attributeMultiplier):1;
+  s.attributeMultiplier=[1,2,100,10000,1000000,100000000].includes(Number(s.attributeMultiplier))?Number(s.attributeMultiplier):1;
  s.fragmentUpgradeLevel=clampLevel(s.fragmentUpgradeLevel);s.vigintillionLuck=Boolean(s.vigintillionLuck);s.vigintillionIncome=Boolean(s.vigintillionIncome);s.vigintillionFragments=Boolean(s.vigintillionFragments);
  s.owned=Array.isArray(s.owned)?s.owned:[];
  s.equipped=Array.isArray(s.equipped)?s.equipped:[];
@@ -558,8 +558,11 @@ function updateAccountUI(){
  const status=$('authStatus');if(status)status.textContent=cloudStatusMessage;
 }
 function scheduleCloudSave(){
- // A fixed throttle is used because income saves locally every 200 ms.
- if(!currentUser||!cloudReady||cloudSaveTimer||cloudSaveInFlight)return;
+ // Coalesce ordinary actions and 5-second passive-income checkpoints. If a save is in flight,
+ // queue one more pass so the latest state is not stranded in local storage only.
+ if(!currentUser||!cloudReady)return;
+ if(cloudSaveInFlight){cloudSaveQueued=true;return}
+ if(cloudSaveTimer)return;
  cloudSaveTimer=setTimeout(()=>{cloudSaveTimer=null;syncCloudSave()},2200);
 }
 async function syncCloudSave(){
@@ -610,10 +613,28 @@ async function handleAuthenticatedUser(user){
  }
  finally{if(processingUserId===user.id)processingUserId=null; if(currentUser&&currentUser.id===user.id&&cloudReady){placePersonalBase(user.id);refreshBaseDisplay();setTimeout(()=>syncProfileIfNeeded().catch(()=>{}),80);setTimeout(()=>setupSharedServer().catch(()=>{}),250)}}
 }
+let periodicSaveDirty=false;
 function save(){
- try{localStorage.setItem(saveKey,JSON.stringify(state))}catch{}
+ // Important actions are persisted locally immediately; cloud sync remains safely coalesced.
+ try{localStorage.setItem(saveKey,JSON.stringify(state));periodicSaveDirty=false}
+ catch(error){periodicSaveDirty=true;console.warn('Falha ao guardar progresso local:',error)}
  scheduleCloudSave();
 }
+function markPeriodicSave(){periodicSaveDirty=true}
+function flushPeriodicSave(){
+ if(!periodicSaveDirty)return;
+ try{localStorage.setItem(saveKey,JSON.stringify(state));periodicSaveDirty=false}
+ catch(error){console.warn('Falha ao guardar progresso periódico:',error);return}
+ scheduleCloudSave();
+}
+// Passive income changes continuously; persist it every 5 seconds instead of every frame.
+setInterval(flushPeriodicSave,5000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPeriodicSave()});
+window.addEventListener('pagehide',()=>{
+ if(!periodicSaveDirty)return;
+ try{localStorage.setItem(saveKey,JSON.stringify(state))}catch{}
+ periodicSaveDirty=false;
+});
 const HALLOWEEN_UNLOCK_COST=10000000000;
 // A ilha ativa só muda quando o jogador usa o botão/portal da área.
 // Evita que a deteção por proximidade ou o limite entre ilhas teletransporte o jogador.
@@ -704,19 +725,18 @@ const rarities=[
  {name:"Abóbora Apocalíptica",color:0xff743f,weight:4e-11,rate:1e+18,emoji:["🎃", "☄️", "🔥"],desc:"O terror que devora as dimensões.",halloween:true},
  {name:"Halloween Supremo",color:0xffd8ff,weight:2e-11,rate:3e+18,emoji:["👑", "🦇", "💀"],desc:"A raridade suprema do evento Halloween.",halloween:true}
 ];
-
 const V13_BASE_RARITY_COUNT=rarities.length;
 const V13_EXTRA_RARITY_COUNT=200;
-function v13Roman(n){const table=[[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let out="";for(const [v,symbol] of table){while(n>=v){out+=symbol;n-=v}}return out}
+function v13Roman(n){const table=[[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let out='';for(const [v,symbol] of table){while(n>=v){out+=symbol;n-=v}}return out}
 function v13Color(index){
- const h=((index*137.508)%360)/60,sat=.82,l=.62,c=(1-Math.abs(2*l-1))*sat,x=c*(1-Math.abs(h%2-1)),m=l-c/2;let r=0,g=0,b=0;
+ const h=((index*137.508)%360)/60,s=.82,l=.62,c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs(h%2-1)),m=l-c/2;let r=0,g=0,b=0;
  if(h<1)[r,g,b]=[c,x,0];else if(h<2)[r,g,b]=[x,c,0];else if(h<3)[r,g,b]=[0,c,x];else if(h<4)[r,g,b]=[0,x,c];else if(h<5)[r,g,b]=[x,0,c];else [r,g,b]=[c,0,x];
  return (Math.round((r+m)*255)<<16)|(Math.round((g+m)*255)<<8)|Math.round((b+m)*255);
 }
-const V13_RARITY_EMOJIS=[["🌌","🐉","💎"],["♾️","🪽","⚡"],["🪐","👁️","🔥"],["🧬","🐲","🔮"],["🌠","🦖","💠"],["🛸","🦁","✨"],["🌑","🐙","🌀"],["💫","🦅","👑"],["🪬","🐺","🌟"],["☄️","🤖","💥"]];
+const V13_RARITY_EMOJIS=[['🌌','🐉','💎'],['♾️','🪽','⚡'],['🪐','👁️','🔥'],['🧬','🐲','🔮'],['🌠','🦖','💠'],['🛸','🦁','✨'],['🌑','🐙','🌀'],['💫','🦅','👑'],['🪬','🐺','🌟'],['☄️','🤖','💥']];
 for(let tier=1;tier<=V13_EXTRA_RARITY_COUNT;tier++){
  const base=rarities[V13_BASE_RARITY_COUNT-1];
- rarities.push({name:"Ascensão "+v13Roman(tier),color:v13Color(tier),weight:base.weight*.65*Math.pow(.92,tier),rate:base.rate*2000*Math.pow(1.6,tier),emoji:V13_RARITY_EMOJIS[(tier-1)%V13_RARITY_EMOJIS.length],desc:"Raridade extra da v13 · nível "+tier+" de 200, acima da raridade suprema anterior.",v13:true});
+ rarities.push({name:`Ascensão ${v13Roman(tier)}`,color:v13Color(tier),weight:base.weight*.65*Math.pow(.92,tier),rate:base.rate*2000*Math.pow(1.6,tier),emoji:V13_RARITY_EMOJIS[(tier-1)%V13_RARITY_EMOJIS.length],desc:`Raridade extra da v13 · nível ${tier} de 200, acima da raridade suprema anterior.`,v13:true});
 }
 const V13_1_EXTRA_RARITY_COUNT=50;
 const V13_1_RARITY_BASE=rarities[rarities.length-1];
@@ -863,14 +883,13 @@ const allPets=[
  {id:"v12-polar-aurora-fox",name:"Raposa Aurora Polar",rarity:18,emoji:"🦊",rate:95000000,zone:"snow"},
  {id:"v12-zero-absolute-phoenix",name:"Fénix do Zero Absoluto",rarity:19,emoji:"🪽",rate:350000000,zone:"snow"}
 ];
-
-const V13_PET_PREFIXES=["Guardião","Fénix","Dragão","Leviatã","Titã"];
-const V13_PET_EMOJIS=["🐉","🦄","🦊","🐺","🐲","🦖","🦅","🦂","🐍","🦁","🐙","🦈","🛸","👁️","🤖","🌌","💎","⚡","🔥","🪽"];
+const V13_PET_PREFIXES=['Guardião','Fénix','Dragão','Leviatã','Titã'];
+const V13_PET_EMOJIS=['🐉','🦄','🦊','🐺','🐲','🦖','🦅','🦂','🐍','🦁','🐙','🦈','🛸','👁️','🤖','🌌','💎','⚡','🔥','🪽'];
 const V13_PET_RATE_MULTIPLIERS=[.64,.82,1,1.22,1.48];
 for(let tier=1;tier<=V13_EXTRA_RARITY_COUNT;tier++){
  const rarityIndex=V13_BASE_RARITY_COUNT+tier-1,rarity=rarities[rarityIndex];
  for(let variant=0;variant<5;variant++){
-  allPets.push({id:"v13-asc-"+String(tier).padStart(3,"0")+"-"+(variant+1),name:V13_PET_PREFIXES[variant]+" "+rarity.name,rarity:rarityIndex,emoji:V13_PET_EMOJIS[(tier*5+variant)%V13_PET_EMOJIS.length],rate:rarity.rate*V13_PET_RATE_MULTIPLIERS[variant]});
+  allPets.push({id:`v13-asc-${String(tier).padStart(3,'0')}-${variant+1}`,name:`${V13_PET_PREFIXES[variant]} ${rarity.name}`,rarity:rarityIndex,emoji:V13_PET_EMOJIS[(tier*5+variant)%V13_PET_EMOJIS.length],rate:rarity.rate*V13_PET_RATE_MULTIPLIERS[variant]});
  }
 }
 const V13_1_PET_PREFIXES=["Supremo","Ancestral","Cósmico","Primordial","Absoluto"];
@@ -880,7 +899,15 @@ for(let tier=1;tier<=V13_1_EXTRA_RARITY_COUNT;tier++){
   allPets.push({id:"v13-1-asc-"+String(tier).padStart(3,"0")+"-"+(variant+1),name:V13_1_PET_PREFIXES[variant]+" "+rarity.name,rarity:rarityIndex,emoji:V13_PET_EMOJIS[(V13_EXTRA_RARITY_COUNT+tier*5+variant)%V13_PET_EMOJIS.length],rate:rarity.rate*V13_PET_RATE_MULTIPLIERS[variant]});
  }
 }
-function petData(id){return allPets.find(p=>p.id===id)}
+// v13.3 performance indexes: the catalog is static after initialization, so build once.
+const petById=new Map(allPets.map(p=>[p.id,p]));
+const petsByRarity=new Map();
+for(const pet of allPets){
+ let group=petsByRarity.get(pet.rarity);
+ if(!group){group=[];petsByRarity.set(pet.rarity,group)}
+ group.push(pet);
+}
+function petData(id){return petById.get(id)}
 function mutationMult(id){return state.mutations[id]||1}
 function mutationName(mult){if(mult>=1000)return 'Cataclísmica';if(mult>=500)return 'Magmática';if(mult>=250)return 'Glacial';if(mult>=100)return 'Infernal';if(mult>=50)return 'Celestial';if(mult>=20)return 'Sombria';if(mult>=10)return 'Galáctica';if(mult>=5)return 'Dourada';if(mult>=4)return 'Elétrica';if(mult>=3)return 'Prismática';if(mult>=2)return 'Brilhante';return 'Normal'}
 function incomeMultiplier(){return (1+clampLevel(state.incomeLevel))*(1+Math.max(0,state.rebirths||0)*.25)}
@@ -920,6 +947,25 @@ function petAvailableInZone(p,inHalloween=isInHalloweenZone(),inSnow=isInSnowZon
  if(p.zone==='volcano')return inVolcano;
  return false;
 }
+// Cache zone-specific pet pools (at most 16 combinations of the four zone flags).
+const petAvailabilityCache=new Map();
+function getPetAvailability(inHalloween,inSnow,inVolcano,inCyber){
+ const key=`${+inHalloween}${+inSnow}${+inVolcano}${+inCyber}`;
+ let cached=petAvailabilityCache.get(key);
+ if(cached)return cached;
+ const byRarity=new Map(),allAvailable=[],availableRarities=new Set(),availablePetIds=new Set();
+ for(const [rarityIndex,group] of petsByRarity){
+  const availableGroup=group.filter(pet=>petAvailableInZone(pet,inHalloween,inSnow,inVolcano,inCyber));
+  if(!availableGroup.length)continue;
+  byRarity.set(rarityIndex,availableGroup);availableRarities.add(rarityIndex);
+  for(const pet of availableGroup)availablePetIds.add(pet.id);
+ }
+ // Keep the legacy catalog order for the rare fallback path.
+ for(const pet of allPets)if(availablePetIds.has(pet.id))allAvailable.push(pet);
+ cached={byRarity,allAvailable,availableRarities};
+ petAvailabilityCache.set(key,cached);
+ return cached;
+}
 function rollCost(){return 10}
 function format(n){
  n=Number(n)||0;if(!Number.isFinite(n))return '∞';if(Math.abs(n)<1000)return Math.floor(n).toLocaleString('pt-BR');
@@ -951,8 +997,7 @@ function batchInfo(kind){
  if(targetCost<=state.coins)return {target,targetCost,levels:target,cost:targetCost};
  let low=0,high=target;
  while(low<high){const mid=Math.ceil((low+high)/2);if(sumUpgradeCost(kind,level,mid)<=state.coins)low=mid;else high=mid-1}
- const cost=sumUpgradeCost(kind,level,low);
- return {target,targetCost,levels:low,cost};
+ const cost=sumUpgradeCost(kind,level,low); return {target,targetCost,levels:low,cost};
 }
 function renderUpgradeButton(id,kind){
  const button=$(id),level=upgradeLevel(kind),limit=upgradeLimit(kind);
@@ -1018,10 +1063,11 @@ function renderUI(){
 }
 function showToast(msg){$('toast').textContent=msg;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',2300)}
 function weightedRarity(){
- const inHalloween=isInHalloweenZone(), inSnow=isInSnowZone(), inVolcano=isInVolcanoZone(), inCyber=isInCyberZone(), dieLuck=Math.max(1,diceLuckMultiplier());
+ const inHalloween=isInHalloweenZone(),inSnow=isInSnowZone(),inVolcano=isInVolcanoZone(),inCyber=isInCyberZone(),dieLuck=Math.max(1,diceLuckMultiplier());
+ const availability=getPetAvailability(inHalloween,inSnow,inVolcano,inCyber);
  const luckTotal=Math.max(1,Number(state.attributeMultiplier)||1)*(state.vigintillionLuck?100000000:1)*cloverLuckMultiplier()*potionLuckMultiplier()*itemLuckMultiplier()*eventLuckMultiplier();
  const logWeights=rarities.map((r,i)=>{
-  const available=i>=V13_BASE_RARITY_COUNT||allPets.some(p=>p.rarity===i&&petAvailableInZone(p,inHalloween,inSnow,inVolcano,inCyber));
+  const available=i>=V13_BASE_RARITY_COUNT||availability.availableRarities.has(i);
   if(!available||!(r.weight>0))return -Infinity;
   return Math.log(r.weight)+i*.08*Math.log(Math.max(1,luckTotal))+i*.19*Math.log(dieLuck);
  });
@@ -1047,6 +1093,11 @@ function rollCopyCount(){
  const doubleChance=Math.min(.5,(state.doubleRollLevel||0)/MAX_UPGRADE_LEVEL*.5);
  const r=Math.random();if(r<quadChance)return 4;if(r<quadChance+doubleChance)return 2;return 1;
 }
+function persistRollProgress(wasDiscovered,mutation,previousMutation,teamChanged=false){
+ // Repeated results are batched; collection, mutation and team improvements save immediately.
+ if(!wasDiscovered||mutation>previousMutation||teamChanged)save();
+ else markPeriodicSave();
+}
 function currentMissionDay(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function ensureMissionDay(){const day=currentMissionDay();if(state.missionDay!==day){state.missionDay=day;state.missionClaims=[];state.missionProgress={rolls:0,wins:0,fusions:0};save()}}
 function roll(){
@@ -1057,27 +1108,29 @@ function roll(){
  if(now-lastRoll<cooldown){return}
  lastRoll=now;rollBusy=true;state.coins-=rollCost();state.totalRolls++;
  ensureMissionDay();state.missionProgress.rolls=(state.missionProgress.rolls||0)+1;state.battlePassXp+=1;
- renderUI();save();diceSpin=2.3;
+ renderUI();diceSpin=2.3;
  const delay=state.autoRollEnabled&&state.autoRollLevel>0?Math.min(Math.max(280,900-clampLevel(state.speedLevel)*12.65),Math.max(280,autoRollInterval()*.72)):Math.max(280,900-clampLevel(state.speedLevel)*12.65);
  setTimeout(()=>{
   try{
    const rarityIndex=weightedRarity();
    const inHalloween=isInHalloweenZone(),inSnow=isInSnowZone(),inVolcano=isInVolcanoZone(),inCyber=isInCyberZone();
-   const options=allPets.filter(p=>p.rarity===rarityIndex&&petAvailableInZone(p,inHalloween,inSnow,inVolcano,inCyber));
-   const pool=options.length?options:allPets.filter(p=>petAvailableInZone(p,inHalloween,inSnow,inVolcano,inCyber));
+   const availability=getPetAvailability(inHalloween,inSnow,inVolcano,inCyber);
+   const pool=availability.byRarity.get(rarityIndex)||availability.allAvailable;
    const pet=pool[Math.floor(Math.random()*pool.length)];
-   if(!pet){showToast('Nenhum pet disponível nesta área.');return}
+   if(!pet){save();showToast('Nenhum pet disponível nesta área.');return}
    const wasDiscovered=state.discovered.includes(pet.id);if(!wasDiscovered)state.discovered.push(pet.id);
-   const mutation=rollMutation(rarityIndex);
-   if(mutation>mutationMult(pet.id))state.mutations[pet.id]=mutation;
+   const previousMutation=mutationMult(pet.id),mutation=rollMutation(rarityIndex);
+   if(mutation>previousMutation)state.mutations[pet.id]=mutation;
    if(state.autoDeleteRarities.includes(rarityIndex)){
-    save();showToast(`🗑️ ${pet.name} descartado automaticamente${mutation>1?' · mutação x'+format(mutation):''}; registado no Índice.`);
+    persistRollProgress(wasDiscovered,mutation,previousMutation);showToast(`🗑️ ${pet.name} descartado automaticamente${mutation>1?' · mutação x'+format(mutation):''}; registado no Índice.`);
     if($('sellShop').style.display==='flex')renderSellShop();if($('indexModal').style.display==='flex')renderCollectionIndex();return;
    }
+   const previousTeamSignature=state.equipped.join('|');
    const copies=rollCopyCount();for(let i=0;i<copies;i++)state.owned.push(pet.id);
    autoEquipBest(false);syncPetMeshes();
    if(typeof refreshBaseDisplay==='function')refreshBaseDisplay();
-   save();renderUI();
+   const teamChanged=previousTeamSignature!==state.equipped.join('|');
+   persistRollProgress(wasDiscovered,mutation,previousMutation,teamChanged);renderUI();
    if(state.autoBattleEnabled)scheduleAutoBattle(700);
    if($('sellShop').style.display==='flex')renderSellShop();if($('indexModal').style.display==='flex')renderCollectionIndex();if($('inventory').style.display==='flex')renderInventory();
    // Only a compact toast is shown; the large discovery modal has been removed from the roll flow.
@@ -1193,8 +1246,35 @@ function rollGlobalBonus(automated=false){
 }
 
 function autoEquipBest(notify=false){
- if(!state.owned.length){state.equipped=[];return}
- state.equipped=[...state.owned].sort((a,b)=>petPower(petData(b))-petPower(petData(a))).slice(0,state.slots);
+ const capacity=Math.max(0,Math.min(Math.floor(Number(state.slots)||0),state.owned.length));
+ if(!capacity){state.equipped=[];return}
+ // Keep only the best `capacity` copies in a min-heap. This preserves the old
+ // power-descending, stable-order result without sorting the entire backpack.
+ const heap=[],powerById=new Map();
+ const scoreFor=id=>{
+  if(powerById.has(id))return powerById.get(id);
+  const value=petPower(petData(id));powerById.set(id,value);return value;
+ };
+ const worse=(a,b)=>a.power<b.power||(a.power===b.power&&a.index>b.index);
+ const siftUp=index=>{
+  let i=index;
+  while(i>0){const parent=(i-1)>>1;if(!worse(heap[i],heap[parent]))break;[heap[i],heap[parent]]=[heap[parent],heap[i]];i=parent}
+ };
+ const siftDown=index=>{
+  let i=index;
+  while(true){let worst=i,left=i*2+1,right=left+1;
+   if(left<heap.length&&worse(heap[left],heap[worst]))worst=left;
+   if(right<heap.length&&worse(heap[right],heap[worst]))worst=right;
+   if(worst===i)break;[heap[i],heap[worst]]=[heap[worst],heap[i]];i=worst;
+  }
+ };
+ for(let index=0;index<state.owned.length;index++){
+  const id=state.owned[index],candidate={id,index,power:scoreFor(id)};
+  if(heap.length<capacity){heap.push(candidate);siftUp(heap.length-1)}
+  else if(worse(heap[0],candidate)){heap[0]=candidate;siftDown(0)}
+ }
+ heap.sort((a,b)=>b.power-a.power||a.index-b.index);
+ state.equipped=heap.map(entry=>entry.id);
  if(notify)showToast(`Equipa automática atualizada: ${state.equipped.length}/${state.slots} melhores pets.`);
 }
 function renderInventory(){
@@ -1366,18 +1446,17 @@ function usePotion(id){
  if(id==='health'&&battleRuntime){const base=105+Math.min(95,Math.sqrt(Math.max(0,teamPower()))*4);battleRuntime.playerMaxHp=Math.round(base*2);battleRuntime.playerHp=battleRuntime.playerMaxHp;updateBattleBars()}
  save();renderUI();renderPotionList();showToast(`${p.name} ativada; a duração acumulou mais 120 segundos!`);
 }
-
 const ATTRIBUTE_OFFERS=[
- {multiplier:2,cost:25,label:"x2"},
- {multiplier:100,cost:100,label:"x100"},
- {multiplier:10000,cost:500,label:"x10.000"},
- {multiplier:1000000,cost:2500,label:"x1 milhão"},
- {multiplier:100000000,cost:10000,label:"x100 milhões"}
+ {multiplier:2,cost:25,label:'x2'},
+ {multiplier:100,cost:100,label:'x100'},
+ {multiplier:10000,cost:500,label:'x10.000'},
+ {multiplier:1000000,cost:2500,label:'x1 milhão'},
+ {multiplier:100000000,cost:10000,label:'x100 milhões'}
 ];
 function renderAttributeMachine(){
  const current=Math.max(1,Number(state.attributeMultiplier)||1);
- $('attributeMultiplierStatus').textContent="Atributo atual: x"+format(current)+" · multiplica sorte, renda e poder de batalha permanentemente.";
- $('attributeMultiplierOptions').innerHTML=ATTRIBUTE_OFFERS.map(o=>'<div class="diceCard"><div class="diceCardIcon">🧬</div><div class="diceCardInfo"><strong>Multiplicador '+o.label+'</strong><small>Custo: '+format(o.cost)+' fragmentos · efeito permanente</small></div><button data-attribute-multiplier="'+o.multiplier+'" '+(current>=o.multiplier||state.fragments<o.cost?'disabled':'')+' class="gold">'+(current>=o.multiplier?'ADQUIRIDO':'COMPRAR · '+format(o.cost))+'</button></div>').join('');
+ $('attributeMultiplierStatus').textContent=`Atributo atual: x${format(current)} · custo pago em fragmentos; multiplica sorte, renda e poder de batalha permanentemente.`;
+ $('attributeMultiplierOptions').innerHTML=ATTRIBUTE_OFFERS.map(o=>`<div class="diceCard"><div class="diceCardIcon">🧬</div><div class="diceCardInfo"><strong>Multiplicador ${o.label}</strong><small>Custo: ${format(o.cost)} fragmentos · efeito permanente</small></div><button data-attribute-multiplier="${o.multiplier}" ${current>=o.multiplier||state.fragments<o.cost?'disabled':''} class="gold">${current>=o.multiplier?'ADQUIRIDO':`COMPRAR · ${format(o.cost)}`}</button></div>`).join('');
  $('attributeMultiplierOptions').querySelectorAll('[data-attribute-multiplier]').forEach(b=>b.addEventListener('click',()=>buyAttributeMultiplier(Number(b.dataset.attributeMultiplier))));
 }
 function openAttributeMachine(){
@@ -1387,8 +1466,8 @@ function openAttributeMachine(){
 function buyAttributeMultiplier(multiplier){
  const offer=ATTRIBUTE_OFFERS.find(o=>o.multiplier===multiplier);if(!offer)return;
  if((Number(state.attributeMultiplier)||1)>=offer.multiplier){showToast('Já tens este multiplicador ou um superior.');return}
- if(state.fragments<offer.cost){showToast('Precisas de '+format(offer.cost)+' fragmentos para comprar '+offer.label+'.');return}
- state.fragments-=offer.cost;state.attributeMultiplier=offer.multiplier;save();renderUI();renderAttributeMachine();showToast('🧬 Atributo permanente '+offer.label+' adquirido! Sorte, renda e poder multiplicados.');
+ if(state.fragments<offer.cost){showToast(`Precisas de ${format(offer.cost)} fragmentos para comprar ${offer.label}.`);return}
+ state.fragments-=offer.cost;state.attributeMultiplier=offer.multiplier;save();renderUI();renderAttributeMachine();showToast(`🧬 Atributo permanente ${offer.label} adquirido! Sorte, renda e poder multiplicados.`);
 }
 function anyMachineModalOpen(){return ['arena','mutations','globalMachine','cloverMachine','potionModal','sellShop','diceShop','attributeMachineModal'].some(id=>$(id)?.style.display==='flex')}
 function autoOpenNearbyMachine(key){
@@ -1795,7 +1874,7 @@ function animate(now){
   else{nextAutoGlobalAt=now+650;rollGlobalBonus(true)}
  }
  // automatic earnings
- incomeAccumulator+=dt; if(incomeAccumulator>=.2){state.coins+=currentIncome()*incomeAccumulator;incomeAccumulator=0;renderUI();if($('globalMachine').style.display==='flex')refreshGlobalMachineUI();if($('inventory').style.display==='flex')renderInventory();save()}
+ incomeAccumulator+=dt; if(incomeAccumulator>=1){state.coins+=currentIncome()*incomeAccumulator;incomeAccumulator=0;markPeriodicSave();renderUI();if($('globalMachine').style.display==='flex')refreshGlobalMachineUI();if($('inventory').style.display==='flex')renderInventory()}
  const forward=(joy.active?-joy.y:0)+(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
  const side=(joy.active?joy.x:0)+(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
  const moving=Math.hypot(forward,side)>.12;
@@ -1917,8 +1996,7 @@ function updateRemoteBase(base,payload){
 function makeRemotePlayer(payload){const group=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.85,4,8),new THREE.MeshStandardMaterial({color:0x4ee8d1,emissive:0x0c625a,emissiveIntensity:.45}));body.position.y=1;group.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.28,12,8),new THREE.MeshStandardMaterial({color:0xffd5b0}));head.position.y=1.72;group.add(head);const label=makeTextSprite(String(payload.username||'Jogador').slice(0,18),'#10283dd9','#ffffff');label.scale.set(2.5,.5,1);label.position.y=2.45;group.add(label);world.add(group);return {group,lastSeen:Date.now(),labelName:payload.username||'Jogador',base:makeRemoteBase(payload)}}
 function receiveRemotePlayer(payload){if(!payload||!payload.user_id||payload.user_id===currentUser?.id||!Number.isFinite(Number(payload.x))||!Number.isFinite(Number(payload.z)))return;let r=remotePlayers.get(payload.user_id);if(!r){r=makeRemotePlayer(payload);remotePlayers.set(payload.user_id,r)}r.lastSeen=Date.now();r.group.position.set(Number(payload.x),0,Number(payload.z));r.group.rotation.y=Number(payload.yaw)||0;r.group.visible=true;updateRemoteBase(r.base,payload)}
 function localPetPayload(){return state.equipped.slice(0,12).map(id=>({id,mutation:mutationMult(id)}))}
-async function broadcastPosition(){if(!multiplayerChannel||!currentUser)return;const payload={user_id:currentUser.id,username:usernameForUser(currentUser),x:player.position.x,z:player.position.z,yaw:player.rotation.y,island:activeIsland,power:teamPower(),income:currentIncome(),rebirths:state.rebirths||0,pets:localPetPayload()};await multiplayerChannel.send({type:'broadcast',event:'player-position',payload})}
-async function setupSharedServer(){if(!currentUser||!cloudReady)return;if(multiplayerChannel)await disconnectSharedServer();multiplayerChannel=supabase.channel('gamemikle-global-world-v12',{config:{broadcast:{self:false},presence:{key:currentUser.id}}});multiplayerChannel.on('broadcast',{event:'player-position'},({payload})=>receiveRemotePlayer(payload));multiplayerChannel.on('broadcast',{event:'trade-completed'},({payload})=>{if(payload&&(payload.sender_id===currentUser?.id||payload.receiver_id===currentUser?.id)){reloadCloudSave()}});multiplayerChannel.on('presence',{event:'sync'},()=>{const all=multiplayerChannel.presenceState();for(const [key,items] of Object.entries(all)){for(const item of items||[]){if(item.user_id&&item.user_id!==currentUser?.id&&Number.isFinite(Number(item.x)))receiveRemotePlayer(item)}}});multiplayerChannel.subscribe(async status=>{if(status==='SUBSCRIBED'){await multiplayerChannel.track({user_id:currentUser.id,username:usernameForUser(currentUser),x:player.position.x,z:player.position.z,yaw:player.rotation.y,island:activeIsland,power:teamPower(),income:currentIncome(),rebirths:state.rebirths||0,pets:localPetPayload()});$('serverStatus')&&($('serverStatus').textContent='Ligado ao servidor partilhado. Outros jogadores autenticados podem aparecer no mapa.');broadcastPosition().catch(()=>{})}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){$('serverStatus')&&($('serverStatus').textContent='Servidor partilhado indisponível; verifica Realtime no Supabase.')}})}
+async function broadcastPosition(){if(!multiplayerChannel||!currentUser)return;const payload={user_id:currentUser.id,username:usernameForUser(currentUser),x:player.position.x,z:player.position.z,yaw:player.rotation.y,island:activeIsland,power:teamPower(),income:currentIncome(),rebirths:state.rebirths||0,pets:localPetPayload()};await multiplayerChannel.send({type:'broadcast',event:'player-position',payload})}async function setupSharedServer(){if(!currentUser||!cloudReady)return;if(multiplayerChannel)await disconnectSharedServer();multiplayerChannel=supabase.channel('gamemikle-global-world-v12',{config:{broadcast:{self:false},presence:{key:currentUser.id}}});multiplayerChannel.on('broadcast',{event:'player-position'},({payload})=>receiveRemotePlayer(payload));multiplayerChannel.on('broadcast',{event:'trade-completed'},({payload})=>{if(payload&&(payload.sender_id===currentUser?.id||payload.receiver_id===currentUser?.id)){reloadCloudSave()}});multiplayerChannel.on('presence',{event:'sync'},()=>{const all=multiplayerChannel.presenceState();for(const [key,items] of Object.entries(all)){for(const item of items||[]){if(item.user_id&&item.user_id!==currentUser?.id&&Number.isFinite(Number(item.x)))receiveRemotePlayer(item)}}});multiplayerChannel.subscribe(async status=>{if(status==='SUBSCRIBED'){await multiplayerChannel.track({user_id:currentUser.id,username:usernameForUser(currentUser),x:player.position.x,z:player.position.z,yaw:player.rotation.y,island:activeIsland,power:teamPower(),income:currentIncome(),rebirths:state.rebirths||0,pets:localPetPayload()});$('serverStatus')&&($('serverStatus').textContent='Ligado ao servidor partilhado. Outros jogadores autenticados podem aparecer no mapa.');broadcastPosition().catch(()=>{})}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){$('serverStatus')&&($('serverStatus').textContent='Servidor partilhado indisponível; verifica Realtime no Supabase.')}})}
 async function disconnectSharedServer(){const channel=multiplayerChannel;multiplayerChannel=null;if(channel)try{await supabase.removeChannel(channel)}catch{}for(const p of remotePlayers.values()){world.remove(p.group);if(p.base)world.remove(p.base.group);p.base?.petLabels?.forEach(clearSpriteLabel);if(p.base?.label)clearSpriteLabel(p.base.label)}remotePlayers.clear()}
 function renderV12Overlays(){
  $('hubBtn').addEventListener('click',()=>openV12Modal('hubModal'));
@@ -2004,7 +2082,7 @@ supabase.auth.onAuthStateChange((event,session)=>{
 updateAccountUI();
 autoEquipBest(false);syncPetMeshes();applyDiceVisual();renderUI();refreshBattleUI();if(state.autoBattleEnabled&&state.equipped.length)scheduleAutoBattle(1200);requestAnimationFrame(animate);
 
-/* v12.1 right menu open/close behavior */
+// v12.1 right-side menu open/close behavior.
 const rightMenuToggle = document.getElementById('rightMenuToggle');
 const rightMenuPanel = document.getElementById('rightMenuPanel');
 function setRightMenuOpen(open){
